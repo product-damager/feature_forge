@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feature Forge | CRO Lab</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3838E7',
+            'primary-hover': '#2b2bb5',
+            background: '#F8F9FD',
+            surface: '#FFFFFF',
+            'brand-lime': '#DAE995',
+            'brand-dark': '#1D342F',
+          },
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+          },
+          borderRadius: {
+            DEFAULT: '6px',
+            md: '6px',
+            lg: '8px',
+          }
+        }
+      }
+    }
+  </script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    /* Custom scrollbar for cleaner look */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #e5e7eb;
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #d1d5db;
+    }
+
+    @keyframes pulse-subtle {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.85;
+        transform: scale(0.995);
+      }
+    }
+
+    .animate-pulse-subtle {
+      animation: pulse-subtle 3s ease-in-out infinite;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // Icons
+    const Search = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>;
+    const ChevronDown = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m6 9 6 6 6-6" /></svg>;
+    const ChevronUp = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m18 15-6-6-6 6" /></svg>;
+    const X = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>;
+    const Lightbulb = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-1 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" /><path d="M9 18h6" /><path d="M10 22h4" /></svg>;
+    const FlaskConical = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2" /><path d="M8.5 2h7" /><path d="M7 16h10" /></svg>;
+    const Layers = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" /><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" /><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" /></svg>;
+    const Info = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></svg>;
+    const Eye = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>;
+    const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>;
+    const FileText = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><line x1="10" y1="9" x2="8" y2="9" /></svg>;
+    const CheckCircle = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>;
+    const ChevronsDown = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m7 6 5 5 5-5" /><path d="m7 13 5 5 5-5" /></svg>;
+    const ChevronsUp = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m17 11-5-5-5 5" /><path d="m17 18-5-5-5 5" /></svg>;
+    const Flask = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M7 2h10" /><path d="M12 2v7.5" /><path d="m5 20 5-10.5h4l5 10.5a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2Z" /></svg>;
+    const Sparkles = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z" /><path d="M5 3v4" /><path d="M9 5H5" /></svg>;
+    const ArrowLeft = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 19-7-7 7-7" /><path d="M19 12H5" /></svg>;
+    const Wallet = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" /><path d="M3 5v14a2 2 0 0 0 2 2h16v-5" /><path d="M18 12a2 2 0 0 0 0 4h4v-4Z" /></svg>;
+    const Maximize = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 3H5a2 2 0 0 0-2 2v3" /><path d="M21 8V5a2 2 0 0 0-2-2h-3" /><path d="M3 16v3a2 2 0 0 0 2 2h3" /><path d="M16 21h3a2 2 0 0 0 2-2v-3" /></svg>;
+    const MoreVertical = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="1" /><circle cx="12" cy="5" r="1" /><circle cx="12" cy="19" r="1" /></svg>;
+    const Share2 = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" /></svg>;
+    const Download = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>;
+    const Archive = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="2" y="3" width="20" height="5" rx="1" /><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8" /><path d="M10 12h4" /></svg>;
+    const Heart = ({ className, filled }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>;
+    const ScanLine = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 7V5a2 2 0 0 1 2-2h2" /><path d="M17 3h2a2 2 0 0 1 2 2v2" /><path d="M21 17v2a2 2 0 0 1-2 2h-2" /><path d="M7 21H5a2 2 0 0 1-2-2v-2" /><line x1="7" y1="12" x2="17" y2="12" /></svg>;
+
+    // Kebab dropdown component
+    function KebabMenu({ items }) {
+      const [open, setOpen] = useState(false);
+      const ref = React.useRef(null);
+      useEffect(() => {
+        const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+      }, []);
+      return (
+        <div className="relative" ref={ref}>
+          <button onClick={(e) => { e.stopPropagation(); setOpen(!open); }} className="p-1.5 rounded-md hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+            <MoreVertical className="w-4 h-4" />
+          </button>
+          {open && (
+            <div className="absolute right-0 top-full mt-1 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-50 py-1 animate-in fade-in duration-100">
+              {items.map((item, i) => (
+                <button key={i} onClick={(e) => { e.stopPropagation(); item.onClick(); setOpen(false); }} className={`w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-gray-50 transition-colors ${item.danger ? 'text-red-600 hover:bg-red-50' : 'text-gray-700'}`}>
+                  {item.icon && <span className="w-4 h-4">{item.icon}</span>}
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    const MAX_TRACKED_PAGES = 10;
+    const TRACKED_PAGES = [
+      { url: "https://www.acmerun.com/checkout", status: "Ready", name: "Checkout Page" },
+      { url: "https://www.acmerun.com/", status: "In progress", name: "Homepage" },
+    ];
+
+    const LEVER_DATA = {
+      "Comprehension": {
+        label: "Comprehension",
+        question: "Can the user understand what is being offered?",
+        description: "Addresses clarity of messaging, product information, and transactional details. When users struggle to comprehend the offering or how transactions work, conversion friction increases regardless of other factors."
+      },
+      "Motivation": {
+        label: "Motivation",
+        question: "Does the user want to take action?",
+        description: "Encompasses value perception, urgency, social proof, and incentive structures. Even when users understand an offering, insufficient motivation prevents action."
+      },
+      "Trust": {
+        label: "Trust",
+        question: "Does the user believe and accept the offering?",
+        description: "Covers legitimacy signals, credibility indicators, and security assurances. Users may understand and want something but hesitate due to concerns about authenticity or safety."
+      },
+      "Cost": {
+        label: "Cost",
+        question: "Can the user afford it (financially, cognitively, temporally)?",
+        description: "Addresses pricing clarity, perceived effort, and commitment concerns. High cost (financial, cognitive, or temporal) creates barriers even when other factors align."
+      },
+      "Anxiety": {
+        label: "Cost (Anxiety)",
+        question: "Can the user afford it (financially, cognitively, temporally)?",
+        description: "Addresses pricing clarity, perceived effort, and commitment concerns. High cost (financial, cognitive, or temporal) creates barriers even when other factors align."
+      },
+      "Usability": {
+        label: "Usability",
+        question: "Can the user interact with the interface easily?",
+        description: "Covers navigation, findability, visual attention, and interaction friction. Poor usability prevents users from completing intended actions."
+      }
+    };
+
+    // --- Components ---
+
+    function InfoTooltip({ label, content, children }) {
+      const [isVisible, setIsVisible] = useState(false);
+      const [coords, setCoords] = useState({ top: 0, left: 0 });
+      const triggerRef = React.useRef(null);
+
+      const handleMouseEnter = () => {
+        if (triggerRef.current) {
+          const rect = triggerRef.current.getBoundingClientRect();
+          // Position above the element, centered horizontally
+          setCoords({
+            top: rect.top - 10, // 10px gap
+            left: rect.left + rect.width / 2
+          });
+          setIsVisible(true);
+        }
+      };
+
+      return (
+        <>
+          <div
+            ref={triggerRef}
+            className="inline-flex items-center cursor-help"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={() => setIsVisible(false)}
+          >
+            {children ? children : (
+              <Info className="w-3.5 h-3.5 text-blue-400 hover:text-blue-600 ml-1.5" />
+            )}
+          </div>
+
+          {isVisible && ReactDOM.createPortal(
+            <div
+              className="fixed z-[9999] pointer-events-none transform -translate-x-1/2 -translate-y-full"
+              style={{ top: coords.top, left: coords.left }}
+            >
+              <div className="bg-gray-900 text-white text-[10px] rounded-lg shadow-xl p-3 w-64 mb-2">
+                {label && <div className="font-bold mb-1 text-blue-200">{label}</div>}
+                <div className="leading-relaxed opacity-90">
+                  {typeof content === 'object' && !React.isValidElement(content) ? (
+                    <pre className="whitespace-pre-wrap font-mono text-[9px]">{JSON.stringify(content, null, 2)}</pre>
+                  ) : content}
+                </div>
+                {/* Arrow */}
+                <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-gray-900"></div>
+              </div>
+            </div>,
+            document.body
+          )}
+        </>
+      );
+    }
+
+    function DottedScore({ value }) {
+      const max = 5;
+      const normalized = Math.min(max, Math.max(0, (value / 10) * max));
+      const fullDots = Math.floor(normalized);
+      const hasHalf = normalized % 1 >= 0.5;
+
+      return (
+        <div className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded-full border border-gray-100">
+          <div className="flex gap-1">
+            {[...Array(max)].map((_, i) => (
+              <div
+                key={i}
+                className={`w-2 h-2 rounded-full ${i < fullDots ? "bg-green-500" : (i === fullDots && hasHalf ? "bg-green-300" : "bg-gray-200")}`}
+              />
+            ))}
+          </div>
+          <span className="text-[10px] font-bold text-gray-700 ml-1">{value}/10</span>
+        </div>
+      );
+    }
+
+    function StatusChip({ status }) {
+      if (!status) return null;
+      const normalized = status.toLowerCase();
+      let bg = "bg-gray-100 text-gray-700";
+      if (normalized === "new idea") bg = "bg-blue-50 text-blue-700";
+      if (normalized === "draft") bg = "bg-amber-50 text-amber-700";
+      if (normalized === "launched") bg = "bg-[#e7f8ec] text-[#177a3d]";
+      return (
+        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium ${bg}`}>
+          {status}
+        </span>
+      );
+    }
+
+    function demoStatusForIndex(index) {
+      if (index === 0) return "New Idea";
+      if (index === 1) return "Draft";
+      return "Launched";
+    }
+
+    function Button({ children, onClick, className = "", disabled = false }) {
+      return (
+        <button
+          onClick={onClick}
+          disabled={disabled}
+          className={`inline-flex items-center justify-center font-medium rounded-md text-xs px-4 py-2 transition-colors ${disabled ? "bg-gray-300 cursor-not-allowed" : "bg-primary text-white hover:bg-primary-hover"
+            } ${className}`}
+        >
+          {children}
+        </button>
+      );
+    }
+
+    function VariationItem({ variation }) {
+      const [isExpanded, setIsExpanded] = useState(false);
+      const [isEditing, setIsEditing] = useState(false);
+      const [editedPrompt, setEditedPrompt] = useState(variation.prompt || "");
+      const [previewLocked, setPreviewLocked] = useState(false);
+
+      const handleSave = () => {
+        setIsEditing(false);
+        setPreviewLocked(true);
+        // Simulate AI "thinking" for a bit then locking the preview
+        setTimeout(() => setPreviewLocked(false), 1500);
+      };
+
+      return (
+        <div className="border border-gray-200 rounded-md bg-white overflow-hidden transition-all hover:border-blue-300 shadow-sm">
+          <div className="p-3">
+            <div className="flex items-start gap-3 mb-1">
+              <input
+                type="checkbox"
+                checked={variation.selected}
+                onChange={() => variation.onToggle()}
+                className="mt-1 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+              />
+              <div className="flex-1">
+                <div className="flex items-center justify-between gap-3 mb-1">
+                  <div className="flex items-center gap-2 font-medium text-gray-900 text-xs">
+                    <Layers className="w-3.5 h-3.5 text-primary" />
+                    {variation.name}
+                    <InfoTooltip label="Variation ID" content={variation.id} />
+                  </div>
+                  <Button
+                    onClick={() => variation.onCreate()}
+                    className="px-2 py-0.5 text-[10px] h-auto min-h-0 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
+                  >
+                    Create in PBX
+                  </Button>
+                </div>
+                {variation.description && <p className="text-[11px] text-gray-600 mb-2">{variation.description}</p>}
+              </div>
+            </div>
+
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="flex items-center gap-1 text-[10px] text-gray-400 hover:text-gray-600 font-medium transition-colors"
+            >
+              {isExpanded ? "Show less" : "See details"}
+              {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            </button>
+          </div>
+
+          {isExpanded && (
+            <div className="bg-gray-50/50 border-t border-gray-100 p-3 space-y-3">
+              {/* Technical Details */}
+              <div>
+                <h4 className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold mb-2">Technical Implementation</h4>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-white p-2 rounded border border-gray-200">
+                    <div className="text-[10px] text-gray-500 mb-0.5">Selector</div>
+                    <code className="text-[10px] text-blue-600 font-mono bg-blue-50 px-1 py-0.5 rounded">{variation.technical?.selector || ".element"}</code>
+                  </div>
+                  <div className="bg-white p-2 rounded border border-gray-200">
+                    <div className="text-[10px] text-gray-500 mb-0.5">Trigger</div>
+                    <code className="text-[10px] text-purple-600 font-mono bg-purple-50 px-1 py-0.5 rounded">{variation.technical?.trigger || "Load"}</code>
+                  </div>
+                </div>
+              </div>
+
+              {/* AI Prompt */}
+              <div className="p-2.5 rounded-md bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100">
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-1.5">
+                    <Sparkles className="w-3 h-3 text-indigo-600" />
+                    <span className="text-[10px] font-semibold text-indigo-800">PBX Prompt</span>
+                  </div>
+                  {!isEditing ? (
+                    <button
+                      onClick={() => setIsEditing(true)}
+                      className="text-[9px] font-bold text-indigo-500 hover:text-indigo-700 uppercase tracking-tight"
+                    >
+                      Tinker
+                    </button>
+                  ) : (
+                    <div className="flex gap-2">
+                      <button onClick={() => setIsEditing(false)} className="text-[9px] font-bold text-gray-500 hover:text-gray-700 uppercase tracking-tight">Cancel</button>
+                      <button onClick={handleSave} className="text-[9px] font-bold text-indigo-600 hover:text-indigo-800 uppercase tracking-tight">Simulate</button>
+                    </div>
+                  )}
+                </div>
+
+                {isEditing ? (
+                  <textarea
+                    value={editedPrompt}
+                    onChange={(e) => setEditedPrompt(e.target.value)}
+                    className="w-full bg-white border border-indigo-200 rounded p-2 text-[10px] text-indigo-900 focus:outline-none focus:ring-1 focus:ring-indigo-400 min-h-[60px] resize-none mb-2"
+                    placeholder="Enter refinement prompt..."
+                  />
+                ) : (
+                  <p className="text-[10px] text-indigo-900 leading-relaxed font-medium mb-2">
+                    "{editedPrompt}"
+                  </p>
+                )}
+
+                {/* Simulated Preview */}
+                {(isEditing || previewLocked) && (
+                  <div className={`mt-2 p-2 rounded bg-white/60 border border-indigo-100 animate-pulse-subtle`}>
+                    <div className="text-[9px] font-bold text-indigo-400 uppercase tracking-widest mb-1 flex items-center gap-1">
+                      {previewLocked ? "Propagating Changes..." : "Live Preview (Simulated)"}
+                      {previewLocked && <div className="w-2 h-2 rounded-full bg-indigo-400 animate-ping" />}
+                    </div>
+                    <p className="text-[10px] text-gray-500 italic">
+                      {previewLocked ? "Updating technical selectors and triggers based on new prompt context..." : "Adjusting the prompt will refine how the PBX engine interprets this variation's structural changes."}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function AccordionSection({ title, children, defaultOpen = true, icon: Icon }) {
+      const [isOpen, setIsOpen] = useState(defaultOpen);
+      return (
+        <div className="border-b border-gray-100 last:border-0">
+          <button
+            className="w-full flex items-center justify-between py-4 px-6 hover:bg-gray-50 transition-colors"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            <div className="flex items-center gap-2 font-semibold text-gray-900 text-base">
+              {Icon && <Icon className="w-4 h-4 text-primary" />}
+              {title}
+            </div>
+            {isOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+          </button>
+          {isOpen && <div className="px-6 pb-6">{children}</div>}
+        </div>
+      );
+    }
+
+    function AISuggestionsDashboard() {
+      const [pages, setPages] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [error, setError] = useState(null);
+
+      const [activeTab, setActiveTab] = useState("ideas");
+      const [openHypothesisIds, setOpenHypothesisIds] = useState([]);
+      const [selectedExperiment, setSelectedExperiment] = useState(null);
+      const [selectedHypothesis, setSelectedHypothesis] = useState(null);
+      const [search, setSearch] = useState("");
+      const [statusFilter, setStatusFilter] = useState("All");
+      const [openPageIds, setOpenPageIds] = useState([]);
+      const [isFullScreen, setIsFullScreen] = useState(false);
+
+      // Add tracked pages modal state
+      const [showAddPagesModal, setShowAddPagesModal] = useState(false);
+      const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+      const [newPageUrls, setNewPageUrls] = useState([""]);
+      // Initialize state from localStorage if available
+      const [trackedPages, setTrackedPages] = useState(() => {
+        const saved = localStorage.getItem('trackedPages');
+        return saved ? JSON.parse(saved) : TRACKED_PAGES;
+      });
+      const [selectedVariations, setSelectedVariations] = useState([]);
+      const [credits, setCredits] = useState(0); // Mock: 0/100
+      const [showToast, setShowToast] = useState(null);
+      const [lightboxImage, setLightboxImage] = useState(null);
+      const [selectedProject, setSelectedProject] = useState('acmerun');
+
+      const PROJECTS = [
+        { id: 'acmerun', name: 'Acme Run', domain: 'acmerun.com', pages: 3 },
+        { id: 'acmefitness', name: 'Acme Fitness', domain: 'acmefitness.com', pages: 0 },
+        { id: 'acmetravel', name: 'Acme Travel', domain: 'acmetravel.com', pages: 1 },
+      ];
+
+      // Track Mixpanel-like events
+      const trackEvent = (name, props = {}) => {
+        console.log(`[Mixpanel] Tracked: ${name}`, props);
+        if (showToast) return; // Don't spam toasts
+        // setShowToast(`Event Tracked: ${name}`);
+        // setTimeout(() => setShowToast(null), 3000);
+      };
+
+      const handleCreateVariations = (count, prompt) => {
+        if (credits >= 10) {
+          setShowUpgradeModal(true);
+          trackEvent("Upgrade Prompt Shown");
+          return;
+        }
+        setShowToast(`Creating ${count} variation(s) in PBX...`);
+        trackEvent("Handoff to PBX", { count, prompt });
+        setTimeout(() => setShowToast(null), 4000);
+      };
+
+      // Embedded data to avoid fetch/CORS issues
+      const DATA = {
+        "pages": [
+          {
+            "id": "page_checkout",
+            "url": "https://www.acmerun.com/checkout",
+            "type": "Checkout",
+            "title": "Acme Run | Checkout",
+            "hypotheses": [
+              {
+                "id": "hyp_checkout_flow",
+                "thumbnail": "./assets/checkout_redesign.png",
+                "master_lever": "Usability",
+                "lever": "User Flow",
+                "sub_lever": "Friction",
+                "name": "Simplifying the checkout flow will reduce cart abandonment",
+                "description": "If we reduce friction in the checkout flow, fewer users will abandon their cart at the payment step.",
+                "evidence": {
+                  "insight": "Users drop mainly on the payment step where the form feels long and complex.",
+                  "ux_observations": [
+                    {
+                      "id": "ux_obs_1",
+                      "name": "Long form fields",
+                      "description": "The payment form has 12 fields, many of which are optional but not marked as such."
+                    }
+                  ],
+                  "best_practices": [
+                    {
+                      "name": "Single-page checkout",
+                      "description": "Reduces cognitive load by showing the finish line."
+                    }
+                  ]
+                },
+                "experiments": [
+                  {
+                    "id": "exp_single_page",
+                    "name": "Single-page checkout redesign",
+                    "description": "Consolidate the multi-step checkout into a single, streamlined page with clearer hierarchy.",
+                    "component": {
+                      "name": "Checkout form",
+                      "description": "The main checkout form including contact, shipping, billing and payment details."
+                    },
+                    "score": 8.3,
+                    "evidence": {
+                      "insight": "Shorter, single-page checkouts reduce perceived effort and increase completion."
+                    },
+                    "variations": [
+                      {
+                        "id": "var_single_column",
+                        "name": "Single-page layout",
+                        "description": "Merge all checkout steps into one page with a clear single-column layout.",
+                        "technical": { "selector": ".checkout-form", "trigger": "DOMContentLoaded" },
+                        "prompt": "Generate a single-page checkout layout that merges all steps into one column, ensuring clear visual separation between sections."
+                      }
+                    ]
+                  },
+                  {
+                    "id": "exp_guest_checkout",
+                    "name": "Guest checkout option",
+                    "description": "Add a clear 'Continue as guest' option before login to reduce friction for first-time buyers.",
+                    "component": {
+                      "name": "Account step",
+                      "description": "The area where users are required to log in or create an account."
+                    },
+                    "score": 7.8,
+                    "evidence": {
+                      "insight": "Forced account creation is a known abandonment driver for first-time customers."
+                    },
+                    "variations": [
+                      {
+                        "id": "var_guest_button",
+                        "name": "Primary 'Continue as guest' button",
+                        "description": "Show a primary 'Continue as guest' CTA next to secondary login options.",
+                        "technical": { "selector": "#login-form .guest-cta", "trigger": "DOMContentLoaded" },
+                        "prompt": "Design a prominent 'Continue as guest' button, visually distinct from login options, positioned above the fold."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "page_home",
+            "url": "https://www.acmerun.com/",
+            "type": "Homepage",
+            "title": "Acme Run | Performance running shoes",
+            "hypotheses": [
+              {
+                "id": "hyp_home_hero",
+                "thumbnail": "./assets/hero_optimization.png",
+                "master_lever": "Comprehension",
+                "lever": "Value proposition",
+                "sub_lever": "Clarity",
+                "name": "Clarifying the hero value prop will increase product exploration",
+                "description": "If we clarify what Acme Run sells and why it matters, new visitors will more quickly understand the offering.",
+                "evidence": {
+                  "insight": "When the hero copy clearly communicates the product and value proposition, users understand the page faster.",
+                  "ux_observations": [
+                    {
+                      "id": "ux_obs_hero_1",
+                      "name": "Vague headline",
+                      "description": "Current headline 'Run Fast' is too generic and doesn't explain the technology."
+                    }
+                  ]
+                },
+                "experiments": [
+                  {
+                    "id": "exp_hero_messaging",
+                    "name": "Strengthen hero messaging",
+                    "description": "Rework the hero headline and supporting copy to clearly state that Acme Run sells performance running shoes.",
+                    "component": {
+                      "name": "Hero section",
+                      "description": "The above-the-fold hero banner containing headline, subtext, imagery and main call-to-action."
+                    },
+                    "score": 8.1,
+                    "evidence": {
+                      "insight": "When the hero communicates a clear product and value message, users understand the brand faster."
+                    },
+                    "variations": [
+                      {
+                        "id": "var_direct_headline",
+                        "name": "Direct product headline",
+                        "description": "Replace the abstract hero headline with a direct product-focused statement.",
+                        "technical": { "selector": ".hero-headline", "trigger": "DOMContentLoaded" },
+                        "prompt": "Create a direct, product-focused headline for the hero section, emphasizing 'performance running shoes'."
+                      },
+                      {
+                        "id": "var_emotional_headline",
+                        "name": "Emotional benefit headline",
+                        "description": "Focus on the feeling of running effortlessly.",
+                        "technical": { "selector": ".hero-headline", "trigger": "DOMContentLoaded" },
+                        "prompt": "Develop an emotional benefit-driven headline for the hero section, focusing on the feeling of effortless running."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "hyp_social_proof",
+                "master_lever": "Motivation",
+                "lever": "Social Proof",
+                "sub_lever": "Authority",
+                "name": "Adding expert reviews will increase trust",
+                "description": "Displaying logos of running magazines and quotes from athletes will build credibility.",
+                "thumbnail": "https://placehold.co/600x400/f3f4f6/d1d5db?text=Social+Proof+Mockup",
+                "evidence": {
+                  "insight": "Users are skeptical of new shoe brands without third-party validation."
+                },
+                "experiments": [
+                  {
+                    "id": "exp_media_logos",
+                    "name": "Add 'As Seen In' banner",
+                    "description": "Insert a banner below the hero with logos from Runner's World, Men's Health, etc.",
+                    "component": {
+                      "name": "Trust Bar",
+                      "description": "A horizontal strip of logos."
+                    },
+                    "score": 7.5,
+                    "evidence": {
+                      "insight": "Recognizable logos act as a trust heuristic."
+                    },
+                    "variations": [
+                      {
+                        "id": "var_logos_grayscale",
+                        "name": "Grayscale logos",
+                        "description": "Subtle, monochrome logos to not distract from the hero.",
+                        "technical": { "selector": ".trust-bar", "trigger": "DOMContentLoaded" },
+                        "prompt": "Implement a grayscale version of the media logos in the trust bar, ensuring they are subtle and do not distract from the main hero."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "page_pdp",
+            "url": "https://www.acmerun.com/products/velocity-nitro",
+            "type": "Product Detail",
+            "title": "Velocity Nitro | Men's Running Shoe",
+            "hypotheses": [
+              {
+                "id": "hyp_size_guide",
+                "thumbnail": "./assets/size_guide_quiz.png",
+                "master_lever": "Anxiety",
+                "lever": "Fit Uncertainty",
+                "sub_lever": "Sizing",
+                "name": "Improving size guide visibility will reduce return rate",
+                "description": "Many users abandon PDPs because they are unsure if the shoe fits true to size.",
+                "evidence": {
+                  "insight": "Fit is the #1 concern for online shoe buyers."
+                },
+                "experiments": [
+                  {
+                    "id": "exp_size_recommender",
+                    "name": "AI Size Recommender",
+                    "description": "Add a 'What's my size?' button that opens a quiz.",
+                    "component": {
+                      "name": "Size Selector",
+                      "description": "The area where users pick their shoe size."
+                    },
+                    "score": 9.2,
+                    "evidence": {
+                      "insight": "Personalized sizing recommendations significantly increase conversion."
+                    },
+                    "variations": [
+                      {
+                        "id": "var_quiz_modal",
+                        "name": "Quiz Modal",
+                        "description": "A 3-step quiz asking about current shoe brands.",
+                        "technical": { "selector": "#size-selector .quiz-button", "trigger": "click" },
+                        "prompt": "Design a 3-step quiz modal for size recommendation, asking about current shoe brands and fit preferences."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      };
+
+      const Flask = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M10 2v7.527a2 2 0 0 1 .211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.48-10.127A2 2 0 0 1 14 9.527V2" /><path d="M8.5 2h7" /><path d="M7 16h10" /></svg>;
+
+      // Load data
+      useEffect(() => {
+        setPages(DATA.pages || []);
+        setLoading(false);
+        // Default view: All pages expanded, hypotheses collapsed (Hypothesis Level View)
+        if (DATA.pages && DATA.pages.length > 0) {
+          setOpenPageIds(DATA.pages.map(p => p.id));
+          setOpenHypothesisIds([]);
+        }
+      }, []);
+
+      const trackedCount = trackedPages.length;
+      const trackedProgress = Math.min(1, trackedCount / MAX_TRACKED_PAGES) * 100;
+      const [favorites, setFavorites] = useState(() => {
+        const saved = localStorage.getItem('favorites');
+        return saved ? JSON.parse(saved) : [];
+      });
+
+      // Sync state to localStorage
+      useEffect(() => {
+        localStorage.setItem('trackedPages', JSON.stringify(trackedPages));
+      }, [trackedPages]);
+
+      useEffect(() => {
+        localStorage.setItem('favorites', JSON.stringify(favorites));
+      }, [favorites]);
+
+      const toggleFavorite = (id) => {
+        setFavorites(prev =>
+          prev.includes(id) ? prev.filter(fid => fid !== id) : [...prev, id]
+        );
+      };
+
+      const handleExperimentClick = (page, hyp, exp) => {
+        setSelectedExperiment({ page, hypothesis: hyp, experiment: exp });
+        setSelectedHypothesis(null);
+        setSelectedVariations([]);
+        setIsFullScreen(false); // Open sidebar first
+        trackEvent("View Experiment Detail", { exp_id: exp.id });
+      };
+
+      const handleHypothesisClick = (page, hyp) => {
+        setSelectedHypothesis({ page, hypothesis: hyp });
+        setSelectedExperiment(null);
+        setIsFullScreen(false); // Open sidebar first
+        trackEvent("View Hypothesis Diagnosis", { hyp_id: hyp.id });
+      };
+
+      const togglePage = (pageId) => {
+        setOpenPageIds((prev) =>
+          prev.includes(pageId) ? prev.filter((id) => id !== pageId) : [...prev, pageId]
+        );
+      };
+
+      const toggleHypothesis = (hypId) => {
+        setOpenHypothesisIds((prev) =>
+          prev.includes(hypId) ? prev.filter((id) => id !== hypId) : [...prev, hypId]
+        );
+      };
+
+      const expandAll = () => {
+        const allIds = pages.flatMap(p => p.hypotheses.map(h => h.id));
+        setOpenHypothesisIds(allIds);
+      };
+
+      const collapseAll = () => {
+        setOpenHypothesisIds([]);
+      };
+
+      const handleAddTrackedPage = () => {
+        const validUrls = newPageUrls
+          .map(u => u.trim())
+          .filter(u => u)
+          .map(u => {
+            if (!u.startsWith('http://') && !u.startsWith('https://')) {
+              return 'https://' + u;
+            }
+            return u;
+          });
+
+        if (validUrls.length === 0) return;
+
+        // Filter out duplicates
+        const uniqueNewUrls = validUrls.filter(url => !trackedPages.some(p => p.url === url));
+
+        if (uniqueNewUrls.length === 0) {
+          alert('All entered URLs are already being tracked');
+          return;
+        }
+
+        if (uniqueNewUrls.length < validUrls.length) {
+          alert('Some URLs were skipped because they are already being tracked');
+        }
+
+        const newPages = uniqueNewUrls.map(url => ({ url, status: 'In progress' }));
+
+        // Add new pages
+        setTrackedPages([...trackedPages, ...newPages]);
+        setNewPageUrls([""]);
+        setShowAddPagesModal(false);
+      };
+
+      const updateUrlInput = (index, value) => {
+        const newUrls = [...newPageUrls];
+        newUrls[index] = value;
+        setNewPageUrls(newUrls);
+      };
+
+      const addUrlInput = () => {
+        setNewPageUrls([...newPageUrls, ""]);
+      };
+
+      const removeUrlInput = (index) => {
+        if (newPageUrls.length === 1) {
+          updateUrlInput(0, "");
+          return;
+        }
+        const newUrls = newPageUrls.filter((_, i) => i !== index);
+        setNewPageUrls(newUrls);
+      };
+
+      const removeTrackedPage = (urlToRemove) => {
+        if (confirm(`Are you sure you want to stop tracking ${urlToRemove}?`)) {
+          setTrackedPages(trackedPages.filter(p => p.url !== urlToRemove));
+        }
+      };
+
+      const updateTrackedPageName = (url, newName) => {
+        setTrackedPages(trackedPages.map(p => p.url === url ? { ...p, name: newName } : p));
+      };
+
+      if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-500">Loading ideas...</div>;
+      if (error) return <div className="min-h-screen flex items-center justify-center text-red-500">Error: {error}</div>;
+
+      return (
+        <div className="min-h-screen bg-white flex font-sans text-xs">
+          {/* Back Navigation */}
+          <div className="fixed top-4 left-4 z-50">
+            <a
+              href="../gallery.html"
+              className="flex items-center gap-2 px-3 py-2 bg-white/80 backdrop-blur-md border border-gray-200 rounded-full text-[11px] font-semibold text-gray-700 hover:bg-white hover:shadow-md transition-all shadow-sm"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Back to Gallery
+            </a>
+          </div>
+
+          {/* Main column */}
+          <div className={`${(selectedExperiment || selectedHypothesis) && !isFullScreen ? "lg:w-2/3" : "w-full"} transition-all duration-300 flex flex-col h-screen overflow-hidden`}>
+            <div className="max-w-6xl w-full mx-auto px-8 py-5 space-y-4 flex-1 overflow-y-auto">
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-lg font-semibold text-gray-900">Experiment Forge</h1>
+                    <InfoTooltip content="AI-powered optimization ideas generated for your product's growth." />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Refine, tinker, and prototype new feature ideas for your tracked pages.</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => { setShowToast('Exporting ideas as CSV...'); setTimeout(() => setShowToast(null), 3000); }} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
+                    <Download className="w-3.5 h-3.5" />
+                    Export
+                  </button>
+                  <button onClick={() => { setShowToast('Link copied to clipboard'); setTimeout(() => setShowToast(null), 3000); }} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
+                    <Share2 className="w-3.5 h-3.5" />
+                    Share
+                  </button>
+                  <KebabMenu items={[
+                    { label: 'Scan Pages', icon: <ScanLine className="w-4 h-4" />, onClick: () => setShowAddPagesModal(true) },
+                    { label: 'Upgrade Plan', icon: <Wallet className="w-4 h-4" />, onClick: () => setShowUpgradeModal(true) },
+                  ]} />
+                </div>
+              </div>
+
+              {/* Search */}
+              <div className="mt-4 flex items-center">
+                <div className="relative w-full max-w-xl">
+                  <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search ideas..." className="w-full pl-9 pr-3 py-2 text-xs border rounded-md focus:outline-none focus:ring-1 focus:ring-primary" />
+                </div>
+              </div>
+
+              {/* Ideas content */}
+              {(
+                <div className="mt-4 space-y-6 pb-10">
+                  {pages.map((page) => {
+                    const hypotheses = page.hypotheses || [];
+                    const q = search.trim().toLowerCase();
+                    const isPageOpen = openPageIds.includes(page.id);
+                    const filteredHypotheses = hypotheses.filter((hyp) => {
+                      if (!q) return true;
+                      if (hyp.name.toLowerCase().includes(q) || hyp.description.toLowerCase().includes(q) || page.url.toLowerCase().includes(q)) return true;
+                      return hyp.experiments.some((exp) => exp.name.toLowerCase().includes(q) || exp.description.toLowerCase().includes(q));
+                    });
+
+                    if (!filteredHypotheses.length) return null;
+
+                    return (
+                      <div key={page.id} className="space-y-3 border-t border-gray-100 pt-4">
+                        {/* Page heading */}
+                        <button className="w-full flex items-center justify-start text-xs text-gray-600 hover:text-gray-900 cursor-pointer group" onClick={() => togglePage(page.id)}>
+                          {isPageOpen ? <ChevronDown className="w-4 h-4 text-gray-400 mr-2" /> : <ChevronUp className="w-4 h-4 text-gray-400 mr-2" />}
+                          <span className="font-medium text-gray-800">{page.type} page</span>
+                          <span className="text-gray-300 mx-2">•</span>
+                          <span className="truncate max-w-md text-gray-500">
+                            {trackedPages.find(tp => tp.url === page.url)?.name || page.url}
+                          </span>
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity ml-2" onClick={(e) => e.stopPropagation()}>
+                            <InfoTooltip label="Page ID" content={page.id} />
+                          </div>
+                        </button>
+
+                        {isPageOpen && (
+                          <div className="space-y-3 ml-4">
+                            {filteredHypotheses.map((hyp) => {
+                              const isOpen = openHypothesisIds.includes(hyp.id);
+                              const experimentCount = hyp.experiments.length;
+
+                              return (
+                                <div key={hyp.id} className="border rounded-md bg-white overflow-hidden">
+                                  <button className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50" onClick={() => toggleHypothesis(hyp.id)}>
+                                    <div className="flex items-center gap-3">
+                                      <div
+                                        className="w-16 h-12 rounded-md bg-gray-200 shrink-0 overflow-hidden relative group/thumb border border-gray-200"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setLightboxImage(hyp.thumbnail || "https://placehold.co/1200x800/f3f4f6/d1d5db?text=Detailed+Optimization+Snapshot");
+                                        }}
+                                      >
+                                        <img
+                                          src={hyp.thumbnail || "https://placehold.co/600x400/f3f4f6/d1d5db?text=Hypothesis+Thumbnail"}
+                                          alt="Thumbnail"
+                                          className="w-full h-full object-cover"
+                                        />
+                                        <div className="absolute inset-0 bg-black/0 group-hover/thumb:bg-black/20 transition-colors flex items-center justify-center">
+                                          <Maximize className="w-4 h-4 text-white opacity-0 group-hover/thumb:opacity-100 transition-opacity drop-shadow-md" />
+                                        </div>
+                                      </div>
+                                      <div className="text-left">
+                                        <div className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                                          {hyp.name}
+                                          <div onClick={(e) => e.stopPropagation()}><InfoTooltip label="Hypothesis ID" content={hyp.id} /></div>
+                                        </div>
+                                        <div className="text-[11px] text-gray-500 line-clamp-2">{hyp.description}</div>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-3 ml-4 shrink-0">
+                                      <div
+                                        onClick={(e) => { e.stopPropagation(); handleHypothesisClick(page, hyp); }}
+                                        className="text-[10px] font-medium text-primary hover:underline px-2 py-1 rounded hover:bg-blue-50 transition-colors"
+                                      >
+                                        View Diagnosis
+                                      </div>
+                                      <div className="text-[11px] text-gray-400">
+                                        {experimentCount} experiment{experimentCount > 1 ? "s" : ""}
+                                      </div>
+                                      {isOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+                                    </div>
+                                  </button>
+
+                                  {/* Experiments */}
+                                  {isOpen && (
+                                    <div className="border-t border-gray-100 bg-[#fafbff]">
+                                      {hyp.experiments.map((exp, index) => {
+                                        const status = demoStatusForIndex(index);
+                                        const isFavorited = favorites.includes(exp.id);
+                                        const isSelected = selectedExperiment && selectedExperiment.experiment.id === exp.id;
+
+                                        return (
+                                          <div key={exp.id} className={`flex items-center justify-between px-4 py-3 gap-4 cursor-pointer ml-4 ${index > 0 ? "border-t border-gray-100" : ""} ${isSelected ? "bg-blue-50" : "hover:bg-gray-50"}`} onClick={() => handleExperimentClick(page, hyp, exp)}>
+                                            <div className="flex items-start gap-3 flex-1">
+                                              <FlaskConical className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                                              <div>
+                                                <div className="flex items-center gap-2 mb-0.5">
+                                                  <span className="text-xs font-medium text-gray-900">{exp.name}</span>
+                                                  <StatusChip status={status} />
+                                                  {isFavorited && <Heart className="w-3 h-3 text-red-400" filled={true} />}
+                                                </div>
+                                                <div className="text-xs text-gray-600 max-w-2xl">{exp.description}</div>
+                                              </div>
+                                            </div>
+                                            <div className="flex items-center gap-2 shrink-0">
+                                              <DottedScore value={exp.score} />
+                                              <div onClick={(e) => e.stopPropagation()}>
+                                                <KebabMenu items={[
+                                                  { label: isFavorited ? 'Remove from Favorites' : 'Add to Favorites', icon: <Heart className="w-4 h-4" filled={isFavorited} />, onClick: () => toggleFavorite(exp.id) },
+                                                  { label: 'Archive', icon: <Archive className="w-4 h-4" />, onClick: () => { setShowToast('Idea archived'); setTimeout(() => setShowToast(null), 3000); }, danger: true },
+                                                ]} />
+                                              </div>
+                                            </div>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+
+            </div>
+
+            {/* Scan Pages Modal */}
+            {showAddPagesModal && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowAddPagesModal(false)}>
+                <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                  {/* Modal Header */}
+                  <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <ScanLine className="w-4 h-4 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-900">Scan Pages</h3>
+                        <p className="text-[11px] text-gray-500">Manage tracked pages and switch projects</p>
+                      </div>
+                    </div>
+                    <button onClick={() => setShowAddPagesModal(false)} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="flex" style={{ minHeight: '420px' }}>
+                    {/* Left: Project Switcher */}
+                    <div className="w-48 border-r border-gray-100 bg-gray-50/50 p-3 flex flex-col">
+                      <div className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-2 px-2">Projects</div>
+                      <div className="space-y-0.5 flex-1">
+                        {PROJECTS.map(proj => (
+                          <button
+                            key={proj.id}
+                            onClick={() => setSelectedProject(proj.id)}
+                            className={`w-full text-left px-3 py-2.5 rounded-lg text-xs transition-colors ${selectedProject === proj.id ? 'bg-primary/10 text-primary font-medium' : 'text-gray-600 hover:bg-gray-100'}`}
+                          >
+                            <div className="font-medium">{proj.name}</div>
+                            <div className="text-[10px] text-gray-400 mt-0.5">{proj.domain} · {proj.pages} pages</div>
+                          </button>
+                        ))}
+                      </div>
+                      <div className="mt-2 pt-2 border-t border-gray-200">
+                        <div className="text-[10px] text-gray-400 px-2">
+                          {trackedCount}/{MAX_TRACKED_PAGES} total scans
+                        </div>
+                        <div className="w-full h-1 bg-gray-200 rounded-full mt-1 mx-2" style={{ width: 'calc(100% - 16px)' }}>
+                          <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${trackedProgress}%` }} />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right: Tracked Pages + Add */}
+                    <div className="flex-1 flex flex-col">
+                      {/* Tracked pages list */}
+                      <div className="flex-1 overflow-y-auto p-4">
+                        <div className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-3">Tracked Pages</div>
+                        {trackedPages.length > 0 ? (
+                          <div className="space-y-1.5">
+                            {trackedPages.map((p, idx) => (
+                              <div key={p.url} className="flex items-center justify-between px-3 py-2.5 rounded-lg border border-gray-100 hover:border-gray-200 bg-white transition-colors group">
+                                <div className="flex-1 min-w-0 mr-3">
+                                  <div className="text-xs font-medium text-gray-900 truncate">
+                                    {p.name || new URL(p.url).pathname || '/'}
+                                  </div>
+                                  <div className="text-[10px] text-gray-400 truncate">{p.url}</div>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <span className={`px-1.5 py-0.5 rounded text-[9px] font-medium ${p.status === 'Ready' ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700'}`}>{p.status}</span>
+                                  <button onClick={() => removeTrackedPage(p.url)} className="p-1 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
+                                    <X className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-xs text-gray-400 text-center py-8">No pages tracked in this project yet.</div>
+                        )}
+                      </div>
+
+                      {/* Add pages area */}
+                      <div className="border-t border-gray-100 p-4">
+                        <div className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-2">Add New Pages</div>
+                        <div className="space-y-2">
+                          {newPageUrls.map((url, index) => (
+                            <div key={index} className="flex gap-2">
+                              <input
+                                type="text"
+                                value={url}
+                                onChange={(e) => updateUrlInput(index, e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' && index === newPageUrls.length - 1) handleAddTrackedPage();
+                                }}
+                                placeholder="https://example.com/page"
+                                className="flex-1 px-3 py-2 border border-gray-200 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                                autoFocus={index === newPageUrls.length - 1}
+                              />
+                              {newPageUrls.length > 1 && (
+                                <button onClick={() => removeUrlInput(index)} className="p-1.5 text-gray-400 hover:text-red-500">
+                                  <X className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex items-center justify-between mt-3">
+                          <button onClick={addUrlInput} className="text-xs text-primary font-medium hover:text-primary-hover flex items-center gap-1">
+                            <span className="text-sm leading-none">+</span> Add URL
+                          </button>
+                          <Button
+                            onClick={handleAddTrackedPage}
+                            disabled={!newPageUrls.some(u => u.trim()) || trackedCount >= MAX_TRACKED_PAGES}
+                          >
+                            Scan Pages
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Immersive Detail View Component (Sidebar or Fullscreen) */}
+          {(selectedExperiment || selectedHypothesis) && (
+            <div
+              className={`
+                bg-white z-[60] flex flex-col overflow-hidden transition-all duration-300
+                ${isFullScreen
+                  ? "fixed inset-0"
+                  : "w-[45%] h-screen sticky top-0 border-l border-gray-100 shadow-2xl animate-in slide-in-from-right"
+                }
+              `}
+            >
+              {/* Header */}
+              <div className={`flex items-start justify-between px-6 pt-5 pb-3 border-b border-gray-200 bg-white shrink-0 ${isFullScreen ? "px-10 pt-8" : ""}`}>
+                <div className="space-y-1 flex-1">
+                  {isFullScreen && (
+                    <button
+                      onClick={() => setIsFullScreen(false)}
+                      className="flex items-center gap-2 text-gray-500 hover:text-primary font-medium mb-4 transition-colors group"
+                    >
+                      <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                      Back to Dashboard
+                    </button>
+                  )}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-[10px] text-gray-700">
+                      {(selectedExperiment || selectedHypothesis).page.type}
+                    </span>
+                    {selectedExperiment && (
+                      <StatusChip status={demoStatusForIndex(selectedExperiment.hypothesis.experiments.findIndex(e => e.id === selectedExperiment.experiment.id))} />
+                    )}
+                    <h2 className="text-sm font-semibold text-gray-900">{(selectedExperiment || selectedHypothesis).page.title}</h2>
+                  </div>
+                  <p className="text-[11px] text-gray-400 truncate">{(selectedExperiment || selectedHypothesis).page.url}</p>
+                </div>
+                <button
+                  className="p-1 text-gray-400 hover:text-gray-700 ml-2"
+                  onClick={() => { setSelectedExperiment(null); setSelectedHypothesis(null); setIsFullScreen(false); }}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Sidebar Action Bar */}
+              {selectedExperiment && !isFullScreen && (() => {
+                const expId = selectedExperiment.experiment.id;
+                const isFav = favorites.includes(expId);
+                return (
+                  <div className="flex items-center gap-1 px-5 py-2 border-b border-gray-100 bg-gray-50/50 shrink-0">
+                    <button
+                      onClick={() => toggleFavorite(expId)}
+                      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-medium transition-colors ${isFav ? 'text-red-500 bg-red-50 hover:bg-red-100' : 'text-gray-600 hover:bg-gray-100'}`}
+                    >
+                      <Heart className="w-3.5 h-3.5" filled={isFav} />
+                      {isFav ? 'Favorited' : 'Favorite'}
+                    </button>
+                    <button
+                      onClick={() => { setShowToast('Idea archived'); setSelectedExperiment(null); setTimeout(() => setShowToast(null), 3000); }}
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-medium text-gray-600 hover:bg-gray-100 transition-colors"
+                    >
+                      <Archive className="w-3.5 h-3.5" />
+                      Archive
+                    </button>
+                    <div className="flex-1" />
+                    <button
+                      onClick={() => { setShowToast('Exporting idea...'); setTimeout(() => setShowToast(null), 3000); }}
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-medium text-gray-600 hover:bg-gray-100 transition-colors"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      Export
+                    </button>
+                  </div>
+                );
+              })()}
+
+              {/* Scrolling Content Area */}
+              <div className={`overflow-y-auto flex-1 ${isFullScreen ? "bg-gray-50/30" : "bg-white"}`}>
+                {isFullScreen ? (
+                  <div className="max-w-4xl mx-auto py-10 px-6 space-y-8">
+
+                    {/* SECTION 1: HYPOTHESIS */}
+                    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                      <div className="p-8">
+                        <div className="flex items-center gap-2 mb-4">
+                          {(() => {
+                            const masterLever = (selectedExperiment || selectedHypothesis).hypothesis.master_lever;
+                            const data = LEVER_DATA[masterLever];
+                            return (
+                              <InfoTooltip
+                                label={data?.label || masterLever}
+                                content={data ? (
+                                  <div>
+                                    <div className="font-semibold text-blue-100 mb-1">{data.question}</div>
+                                    <div>{data.description}</div>
+                                  </div>
+                                ) : "No definition available."}
+                              >
+                                <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-primary/10 text-primary cursor-help">
+                                  {masterLever}
+                                </span>
+                              </InfoTooltip>
+                            );
+                          })()}
+                          <span className="text-gray-300">›</span>
+                          <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-primary/10 text-primary">
+                            {(selectedExperiment || selectedHypothesis).hypothesis.lever}
+                          </span>
+                        </div>
+                        <h3 className="text-2xl font-bold text-gray-900 mb-4">{(selectedExperiment || selectedHypothesis).hypothesis.name}</h3>
+                        <p className="text-gray-600 text-lg leading-relaxed italic">
+                          "{(selectedExperiment || selectedHypothesis).hypothesis.description}"
+                        </p>
+                      </div>
+
+                      {/* Prominent Hypothesis Image */}
+                      <div className="h-96 bg-gray-200 relative border-t border-gray-100">
+                        <img
+                          src="https://placehold.co/1200x800/f3f4f6/d1d5db?text=Detailed+Optimization+Snapshot"
+                          alt="Hypothesis Visualization"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute top-1/4 left-1/3 w-1/3 h-1/4 border-4 border-primary bg-primary/10 rounded-xl shadow-2xl flex items-center justify-center">
+                          <div className="bg-primary text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg absolute -top-4 left-1/2 -translate-x-1/2">
+                            Hypothesis Target
+                          </div>
+                        </div>
+                        <div className="absolute bottom-6 left-6 bg-black/60 backdrop-blur-md text-white px-4 py-2 rounded-xl flex items-center gap-3">
+                          <Maximize className="w-4 h-4" />
+                          <span className="text-xs font-medium">Click to expand overview</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* SECTION 2: DIAGNOSIS & EVIDENCE */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+                        <div className="flex items-center gap-2 mb-4">
+                          <FileText className="w-5 h-5 text-primary" />
+                          <h4 className="font-bold text-gray-900">Diagnosis Details</h4>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+                          {(selectedExperiment || selectedHypothesis).hypothesis.evidence?.insight}
+                        </p>
+                        <div className="space-y-3">
+                          {((selectedExperiment || selectedHypothesis).hypothesis.evidence?.best_practices || []).map((bp, i) => (
+                            <div key={i} className="flex gap-3">
+                              <CheckCircle className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
+                              <div className="text-[11px] text-gray-500"><span className="font-bold text-gray-700">{bp.name}:</span> {bp.description}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+                        <div className="flex items-center gap-2 mb-4">
+                          <Eye className="w-5 h-5 text-amber-500" />
+                          <h4 className="font-bold text-gray-900">UX Observations</h4>
+                        </div>
+                        <div className="space-y-4">
+                          {((selectedExperiment || selectedHypothesis).hypothesis.evidence?.ux_observations || []).map(obs => (
+                            <div key={obs.id} className="text-[11px]">
+                              <div className="font-bold text-gray-800 mb-1">{obs.name}</div>
+                              <div className="text-gray-500 leading-relaxed">{obs.description}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* SECTION 3: VARIATIONS */}
+                    {selectedExperiment && (
+                      <div className="space-y-4 pb-32">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="flex items-center gap-1.5 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">
+                            <DottedScore value={selectedExperiment.experiment.score} />
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <FlaskConical className="w-5 h-5 text-primary" />
+                            <h4 className="font-bold text-gray-900">Test Variations</h4>
+                          </div>
+                          <div className="text-xs text-gray-500">Pick variations to create in PBX</div>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-4">
+                          {selectedExperiment.experiment.variations?.map((v) => (
+                            <VariationItem
+                              key={v.id || v.name}
+                              variation={{
+                                ...v,
+                                selected: selectedVariations.includes(v.id),
+                                onToggle: () => {
+                                  setSelectedVariations(prev =>
+                                    prev.includes(v.id) ? prev.filter(id => id !== v.id) : [...prev, v.id]
+                                  );
+                                  trackEvent("Variation Toggled", { var_id: v.id, selected: !selectedVariations.includes(v.id) });
+                                },
+                                onCreate: () => handleCreateVariations(1, v.prompt)
+                              }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  /* SIDEBAR MODE (v3 accordion style) */
+                  <div>
+                    {/* SECTION 1: HYPOTHESIS */}
+                    <AccordionSection title="Hypothesis" icon={Lightbulb} defaultOpen={true}>
+                      <div className="flex items-center gap-2 mb-2">
+                        {(() => {
+                          const masterLever = (selectedExperiment || selectedHypothesis).hypothesis.master_lever;
+                          const data = LEVER_DATA[masterLever];
+                          return (
+                            <InfoTooltip
+                              label={data?.label || masterLever}
+                              content={data ? (
+                                <div>
+                                  <div className="font-semibold text-blue-100 mb-1">{data.question}</div>
+                                  <div>{data.description}</div>
+                                </div>
+                              ) : "No definition available."}
+                            >
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-700 cursor-help">
+                                {masterLever}
+                              </span>
+                            </InfoTooltip>
+                          );
+                        })()}
+                        <span className="text-gray-300">›</span>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-700">
+                          {(selectedExperiment || selectedHypothesis).hypothesis.lever}
+                        </span>
+                      </div>
+                      <h3 className="text-sm font-bold text-gray-900 mb-2">{(selectedExperiment || selectedHypothesis).hypothesis.name}</h3>
+                      <p className="text-xs text-gray-600 mb-4">{(selectedExperiment || selectedHypothesis).hypothesis.description}</p>
+
+                      {/* Thumbnail with Lightbox Trigger */}
+                      <div
+                        className="h-32 bg-gray-200 relative border border-gray-100 rounded-md overflow-hidden group cursor-pointer"
+                        onClick={() => setLightboxImage(
+                          (selectedExperiment || selectedHypothesis).hypothesis.thumbnail || "https://placehold.co/1200x800/f3f4f6/d1d5db?text=Detailed+Optimization+Snapshot"
+                        )}
+                      >
+                        <img
+                          src={(selectedExperiment || selectedHypothesis).hypothesis.thumbnail || "https://placehold.co/600x400/f3f4f6/d1d5db?text=Hypothesis+Thumbnail"}
+                          alt="Hypothesis Visualization"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                          <Maximize className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-md" />
+                        </div>
+                      </div>
+                    </AccordionSection>
+
+                    {/* SECTION 2: DIAGNOSIS */}
+                    <AccordionSection title="Diagnosis" icon={FileText} defaultOpen={!!selectedHypothesis}>
+                      {(selectedExperiment || selectedHypothesis).hypothesis.evidence?.insight && (
+                        <div className="mb-4">
+                          <div className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold mb-2">Key Insight</div>
+                          <p className="text-gray-700 italic bg-blue-50 p-3 rounded-md border border-blue-100 text-[11px] leading-relaxed">
+                            "{(selectedExperiment || selectedHypothesis).hypothesis.evidence.insight}"
+                          </p>
+                        </div>
+                      )}
+                      {((selectedExperiment || selectedHypothesis).hypothesis.evidence?.ux_observations || []).length > 0 && (
+                        <div>
+                          <div className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold mb-2">UX Observations</div>
+                          <div className="space-y-3">
+                            {(selectedExperiment || selectedHypothesis).hypothesis.evidence.ux_observations.map(obs => (
+                              <div key={obs.id} className="bg-amber-50 rounded-md border border-amber-100 p-3">
+                                <div className="font-medium text-gray-900 mb-1 text-[11px] flex items-center gap-2">
+                                  <Eye className="w-3.5 h-3.5 text-amber-600" />
+                                  {obs.name}
+                                </div>
+                                <p className="text-gray-600 text-[11px]">{obs.description}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </AccordionSection>
+
+                    {/* SECTION 3: VARIATIONS */}
+                    {selectedExperiment && (
+                      <AccordionSection title="Test Idea" icon={FlaskConical} defaultOpen={true}>
+                        <div className="mb-2">
+                          <h3 className="text-sm font-bold text-gray-900 mb-1.5">{selectedExperiment.experiment.name}</h3>
+                          <p className="text-xs text-gray-600 mb-3">{selectedExperiment.experiment.description}</p>
+
+                          <div className="flex items-center gap-2 mb-4">
+                            <DottedScore value={selectedExperiment.experiment.score} />
+                          </div>
+
+                          {/* Best Practices */}
+                          {(selectedExperiment.hypothesis.evidence?.best_practices || []).length > 0 && (
+                            <div className="mb-4 space-y-2">
+                              {selectedExperiment.hypothesis.evidence.best_practices.map((bp, i) => (
+                                <div key={i} className="bg-green-50 p-2.5 rounded-md border border-green-100">
+                                  <div className="font-medium text-gray-900 mb-0.5 text-[11px]">{bp.name}</div>
+                                  <div className="text-gray-600 text-[10px]">{bp.description}</div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          <div className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold mb-2">Variations</div>
+                          <div className="grid grid-cols-1 gap-3">
+                            {selectedExperiment.experiment.variations?.map((v) => (
+                              <VariationItem
+                                key={v.id || v.name}
+                                variation={{
+                                  ...v,
+                                  selected: selectedVariations.includes(v.id),
+                                  onToggle: () => {
+                                    const newSelected = selectedVariations.includes(v.id)
+                                      ? selectedVariations.filter(id => id !== v.id)
+                                      : [...selectedVariations, v.id];
+                                    setSelectedVariations(newSelected);
+                                    trackEvent("Variation Toggled", { var_id: v.id, selected: !selectedVariations.includes(v.id) });
+                                  },
+                                  onCreate: () => handleCreateVariations(1, v.prompt)
+                                }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </AccordionSection>
+                    )}
+                  </div>
+                )}
+
+                {/* Immersive Batch Action Bar */}
+                {selectedVariations.length > 0 && (
+                  <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-full max-w-lg bg-gray-900 text-white p-6 rounded-[24px] shadow-3xl flex items-center justify-between border border-white/10 animate-in slide-in-from-bottom-6 z-[70]">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
+                        <Flask className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-bold">{selectedVariations.length} Variation{selectedVariations.length > 1 ? 's' : ''} Selected</div>
+                        <div className="text-[11px] text-gray-400">Exporting to PBX Experience Builder</div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleCreateVariations(selectedVariations.length, "Batch creation prompt...")}
+                      className="px-8 py-3 bg-primary hover:bg-primary-hover rounded-xl font-bold text-sm transition-all shadow-xl active:scale-95 flex items-center gap-2"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      Create in PBX
+                    </button>
+                  </div>
+                )}
+
+              </div>
+
+              {/* Sidebar Footer for Full Screen CTA */}
+              {!isFullScreen && (
+                <div className="p-4 border-t border-gray-200 bg-white shrink-0 space-y-3">
+                  {selectedVariations.length > 0 && (
+                    <button
+                      onClick={() => handleCreateVariations(selectedVariations.length, "Batch creation prompt...")}
+                      className="w-full py-3 bg-primary text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-primary-hover transition-colors shadow-lg animate-in slide-in-from-bottom-2"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      Create {selectedVariations.length} in PBX
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setIsFullScreen(true)}
+                    className={`w-full py-3 text-sm font-bold flex items-center justify-center gap-2 rounded-xl transition-colors ${selectedVariations.length > 0 ? "bg-gray-100 text-gray-700 hover:bg-gray-200" : "bg-gray-900 text-white hover:bg-gray-800 shadow-lg"}`}
+                  >
+                    <Maximize className="w-4 h-4" />
+                    {selectedVariations.length > 0 ? "Full Screen View" : "Open Full Screen Mode"}
+                  </button>
+                </div>
+              )}
+            </div>
+          )
+          }
+
+          {/* Lightbox Modal */}
+          {
+            lightboxImage && (
+              <div
+                className="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-10 animate-in fade-in duration-200"
+                onClick={() => setLightboxImage(null)}
+              >
+                <div className="relative max-w-6xl w-full h-full flex items-center justify-center">
+                  <img src={lightboxImage} alt="Full Screen Preview" className="max-w-full max-h-full rounded-md shadow-2xl" />
+                  <button className="absolute top-4 right-4 text-white hover:text-gray-300 p-2 bg-black/50 rounded-full">
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+              </div>
+            )
+          }
+
+          {/* Upgrade Modal */}
+          {
+            showUpgradeModal && (
+              <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-6" onClick={() => setShowUpgradeModal(false)}>
+                <div className="bg-white rounded-[32px] overflow-hidden max-w-lg w-full shadow-2xl animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+                  <div className="bg-indigo-600 p-12 text-center relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+                    <div className="absolute bottom-0 right-0 w-48 h-48 bg-white/5 rounded-full translate-x-1/4 translate-y-1/4"></div>
+
+                    <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner">
+                      <Sparkles className="w-10 h-10 text-white" />
+                    </div>
+                    <h3 className="text-white text-3xl font-bold mb-3">Upgrade to Pro</h3>
+                    <p className="text-indigo-100 text-sm leading-relaxed">
+                      You've reached your monthly limit of **10 page scans**. Unlock unlimited AI insights and deep behavioral analysis.
+                    </p>
+                  </div>
+                  <div className="p-10 space-y-6">
+                    <div className="space-y-4">
+                      {[
+                        { title: "Unlimited Scans", desc: "Analyze any page, anytime.", icon: "🚀" },
+                        { title: "Deep Diagnosis", desc: "Full behavioral psychology breakdown.", icon: "🧠" },
+                        { title: "Priority Engine", desc: "3x faster experiment generation.", icon: "⚡" }
+                      ].map(item => (
+                        <div key={item.title} className="flex items-start gap-4">
+                          <div className="text-2xl">{item.icon}</div>
+                          <div>
+                            <div className="font-bold text-gray-900 text-sm">{item.title}</div>
+                            <div className="text-xs text-gray-500">{item.desc}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="pt-4 space-y-3">
+                      <button className="w-full bg-primary text-white py-4 rounded-2xl font-bold text-sm hover:shadow-xl hover:-translate-y-0.5 transition-all shadow-lg">
+                        See Professional Plans
+                      </button>
+                      <button
+                        onClick={() => setShowUpgradeModal(false)}
+                        className="w-full text-gray-400 text-[11px] font-medium hover:text-gray-600 py-2"
+                      >
+                        Maybe later (Return to Dashboard)
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )
+          }
+
+          {/* Toast Notification */}
+          {
+            showToast && (
+              <div className="fixed bottom-8 right-8 z-[200] animate-in slide-in-from-right-10">
+                <div className="bg-gray-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-white/10 min-w-[320px]">
+                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                    <div className="w-2 h-2 rounded-full bg-primary animate-ping"></div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs font-bold leading-none mb-1">PBX Syncing</div>
+                    <div className="text-[10px] text-gray-400">{showToast}</div>
+                  </div>
+                  <button onClick={() => setShowToast(null)} className="text-gray-500 hover:text-white">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )
+          }
+        </div >
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<AISuggestionsDashboard />);
+  </script>
+</body>
+
+</html>

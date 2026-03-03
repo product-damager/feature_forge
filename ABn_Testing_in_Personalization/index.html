@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kameleoon | Personalization 2.0</title>
+    <title>Kameleoon | A/B/n Testing in Personalization</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -13,12 +13,6 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-        }
-
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .vireo-gradient {
@@ -46,22 +40,6 @@
             border: 2px solid white;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .animate-fade-in {
-            animation: fadeIn 0.4s ease-out forwards;
-        }
     </style>
 </head>
 
@@ -71,141 +49,37 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
-        // Simple Icon Component to bypass Lucide loading issues
-        const Icon = ({ name, size = 18, className = "" }) => (
-            <svg
-                width={size}
-                height={size}
-                className={`lucide lucide-${name} ${className}`}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            >
-                <use href={`https://unpkg.com/lucide-static@latest/icons/${name}.svg#${name}`} />
-            </svg>
+        const Icon = ({ name, size = 18, className = "" }) => {
+            const paths = {
+                'zap': 'M13 2L3 14h9l-1 8 10-12h-9l1-8z',
+                'layout-grid': 'M3 3h7v7H3zM14 3h7v7H3zM14 14h7v7H3zM3 14h7v7H3z',
+                'target': 'M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z M12 18a6 6 0 100-12 6 6 0 000 12z M12 14a2 2 0 100-4 2 2 0 000 4z',
+                'bar-chart-3': 'M3 3v18h18 M18 17V9 M13 17V5 M8 17v-3',
+                'plus': 'M12 5v14M5 12h14',
+                'more-vertical': 'M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0 M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0 M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0',
+                'chevron-down': 'M6 9l6 6 6-6',
+                'eye': 'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M12 17a5 5 0 100-10 5 5 0 000 10z',
+                'trash-2': 'M3 6h18 M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2',
+                'check-circle-2': 'M22 11.08V12a10 10 0 11-5.93-9.14 M22 4L12 14.01l-3-3',
+                'sparkles': 'M9.603 4.833L10.864 1.23a.25.25 0 01.472 0l1.261 3.603a1.5 1.5 0 00.931.931l3.603 1.261a.25.25 0 010 .472l-3.603 1.261a1.5 1.5 0 00-.931.931l-1.261 3.603a.25.25 0 01-.472 0l-1.261-3.603a1.5 1.5 0 00-.931-.931l-3.603-1.261a.25.25 0 010-.472l3.603-1.261a1.5 1.5 0 00.931-.931z',
+                'grip-vertical': 'M9 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm0 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm0 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm7-14a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm0 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm0 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0z',
+                'help-circle': 'M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3 M12 17h.01',
+                'arrow-left': 'M19 12H5M12 19l-7-7 7-7'
+            };
+            return (
+                <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                    <path d={paths[name] || ''} />
+                </svg>
+            );
+        };
+
+        const NavItem = ({ icon, label, active, onClick }) => (
+            <button onClick={onClick} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${active ? 'bg-indigo-50 text-indigo-700' : 'text-slate-500 hover:bg-slate-50'}`}>
+                {icon} {label}
+            </button>
         );
 
-        // Fallback: Using simple functional wrappers for icons used in JSX
-        const LayoutGrid = (props) => <Icon name="layout-grid" {...props} />;
-        const Target = (props) => <Icon name="target" {...props} />;
-        const BarChart3 = (props) => <Icon name="bar-chart-3" {...props} />;
-        const Settings = (props) => <Icon name="settings" {...props} />;
-        const ArrowLeft = (props) => <Icon name="arrow-left" {...props} />;
-        const Plus = (props) => <Icon name="plus" {...props} />;
-        const MoreVertical = (props) => <Icon name="more-vertical" {...props} />;
-        const ChevronDown = (props) => <Icon name="chevron-down" {...props} />;
-        const HelpCircle = (props) => <Icon name="help-circle" {...props} />;
-        const Zap = (props) => <Icon name="zap" {...props} />;
-        const User = (props) => <Icon name="user" {...props} />;
-        const Eye = (props) => <Icon name="eye" {...props} />;
-        const Trash2 = (props) => <Icon name="trash-2" {...props} />;
-        const Edit3 = (props) => <Icon name="edit-3" {...props} />;
-        const CheckCircle2 = (props) => <Icon name="check-circle-2" {...props} />;
-        const Layers = (props) => <Icon name="layers" {...props} />;
-        const Info = (props) => <Icon name="info" {...props} />;
-        const GripVertical = (props) => <Icon name="grip-vertical" {...props} />;
-        const Sparkles = (props) => <Icon name="sparkles" {...props} />;
-
-        // Mock Data
-        const INITIAL_CONTENT = [
-            { id: 1, name: 'AI Optimization v2', type: 'Prompt-based', status: 'Active' },
-            { id: 2, name: 'Summer Banner High', type: 'Graphic', status: 'Draft' },
-            { id: 3, name: 'Code Override 404', type: 'Code', status: 'Active' },
-            { id: 4, name: 'Original', type: 'Control', status: 'System' }
-        ];
-
-        function App() {
-            const [activeTab, setActiveTab] = useState('rules');
-            const [selectedRuleId, setSelectedRuleId] = useState(1);
-
-            return (
-                <div className="flex h-screen overflow-hidden">
-                    {/* Sidebar */}
-                    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col pt-6 shrink-0">
-                        <div className="px-6 mb-8 flex items-center gap-2">
-                            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-                                <Zap className="text-white w-5 h-5 fill-current" />
-                            </div>
-                            <span className="font-bold text-xl tracking-tight italic text-slate-900 flex items-center gap-1">
-                                Vireo <span className="text-[10px] font-medium bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded uppercase -mt-1">Beta</span>
-                            </span>
-                        </div>
-
-                        <nav className="flex-1 px-4 space-y-1">
-                            <NavItem icon={<LayoutGrid size={18} />} label="Content" active={activeTab === 'content'} onClick={() => setActiveTab('content')} />
-                            <NavItem icon={<Target size={18} />} label="Targeting Rules" active={activeTab === 'rules'} onClick={() => setActiveTab('rules')} />
-                            <NavItem icon={<BarChart3 size={18} />} label="Goals" active={activeTab === 'goals'} onClick={() => setActiveTab('goals')} />
-                            <NavItem icon={<CheckCircle2 size={18} />} label="Integrations" active={activeTab === 'integrations'} onClick={() => setActiveTab('integrations')} />
-                        </nav>
-
-                        <div className="p-4 border-t border-slate-100 flex items-center gap-3">
-                            <a href="../index.html" className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 transition-colors text-sm font-medium">
-                                <ArrowLeft size={14} /> Back to Gallery
-                            </a>
-                        </div>
-                    </aside>
-
-                    {/* Main Content Area */}
-                    <div className="flex-1 flex flex-col overflow-hidden">
-                        <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-12 shrink-0">
-                            <div className="flex items-center gap-4 text-sm">
-                                <span className="font-bold text-slate-900 italic text-indigo-600">A/B/n Testing Mode</span>
-                                <div className="flex items-center gap-2 text-slate-400">
-                                    <div className="w-2 h-2 rounded-full bg-slate-300"></div>
-                                    <span>A/B/n testing in Personalization</span>
-                                </div>
-                                <span className="text-slate-400">Saved 4 min ago</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <button className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-slate-50 transition-all">
-                                    <Eye size={16} /> SIMULATE
-                                </button>
-                                <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-bold hover:bg-indigo-700 transition-all shadow-md shadow-indigo-100">
-                                    LAUNCH
-                                </button>
-                            </div>
-                        </header>
-
-                        <main className="flex-1 flex overflow-hidden">
-                            {/* Rules List Panel */}
-                            <div className="w-[400px] border-r border-slate-200 bg-slate-50/50 p-6 overflow-y-auto">
-                                <div className="flex justify-between items-center mb-6">
-                                    <h2 className="text-xl font-bold text-slate-900">Targeting rules</h2>
-                                    <button className="p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all">
-                                        <Plus size={16} />
-                                    </button>
-                                </div>
-                                <p className="text-xs text-slate-500 mb-6 italic">Visitors are targeted based on the first rule they match, from top to bottom.</p>
-
-                                <div className={`p-4 bg-white border-2 ${selectedRuleId === 1 ? 'border-indigo-600 shadow-lg' : 'border-slate-100'} rounded-2xl mb-4 cursor-pointer transition-all hover:bg-white`} onClick={() => setSelectedRuleId(1)}>
-                                    <div className="flex justify-between items-start mb-2">
-                                        <div className="font-bold text-slate-800">Targeting rule 1</div>
-                                        <MoreVertical size={16} className="text-slate-400" />
-                                    </div>
-                                    <div className="text-xs text-indigo-600 font-medium">
-                                        100% of <span className="underline">All visitors</span> exposed to <span className="underline">A/B/n Experiment</span>
-                                    </div>
-                                </div>
-
-                                <button className="w-full py-3 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-bold text-sm hover:border-indigo-300 hover:text-indigo-500 flex items-center justify-center gap-2 transition-all">
-                                    <Plus size={16} /> ADD TARGETING RULE
-                                </button>
-                            </div>
-
-                            {/* Configuration Panel */}
-                            <div className="flex-1 overflow-y-auto bg-white">
-                                <RuleConfiguration />
-                            </div>
-                        </main>
-                    </div>
-                </div>
-            );
-        }
-
-        function RuleConfiguration() {
+        const RuleConfiguration = () => {
             const [allocationMethod, setAllocationMethod] = useState('Manual');
             const [exposedTraffic, setExposedTraffic] = useState(100);
             const [variations, setVariations] = useState([
@@ -215,232 +89,120 @@
 
             const allocateEqually = () => {
                 const count = variations.length;
+                if (count === 0) return;
                 const equalExposition = Math.floor(100 / count);
-                const updated = variations.map((v, i) => ({
+                setVariations(variations.map((v, i) => ({
                     ...v,
                     exposition: i === 0 ? 100 - (equalExposition * (count - 1)) : equalExposition
-                }));
-                setVariations(updated);
-            };
-
-            const addVariation = () => {
-                if (variations.length >= 3) return; // Mock limit
-                const newVar = { id: 2, name: 'Summer Banner High', exposition: 0 };
-                setVariations([...variations, newVar]);
-            };
-
-            const removeVariation = (id) => {
-                if (variations.length <= 1) return;
-                setVariations(variations.filter(v => v.id !== id));
+                })));
             };
 
             return (
                 <div className="max-w-4xl mx-auto py-12 px-6">
                     <header className="flex items-center justify-between mb-8">
                         <div className="flex items-center gap-3">
-                            <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Configure the targeting rule</h2>
-                            <span className="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold rounded uppercase">Draft</span>
+                            <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight text-indigo-600">A/B/n testing in Personalization</h2>
+                            <span className="px-2 py-0.5 bg-indigo-100 text-indigo-600 text-[10px] font-bold rounded uppercase">Prototype</span>
                         </div>
-                        <span className="text-slate-400 text-xs font-medium">215552</span>
                     </header>
 
-                    {/* Rule Name Section */}
-                    <div className="mb-10">
-                        <label className="block text-sm font-bold text-slate-900 mb-2">Rule name</label>
-                        <input type="text" defaultValue="Targeting rule 1" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-medium focus:ring-2 focus:ring-indigo-500 transition-all" />
-                    </div>
-
-                    {/* Targeting Section */}
-                    <div className="mb-10 bg-slate-50/50 rounded-2xl p-6 border border-slate-100">
-                        <div className="flex items-center gap-2 mb-4">
-                            <h3 className="font-bold text-slate-900">Targeting</h3>
-                            <ChevronDown size={16} className="text-slate-400" />
-                        </div>
-                        <p className="text-sm text-slate-500 mb-4">Select the group of users you want to target</p>
-                        <div className="space-y-3">
-                            <label className="flex items-center gap-3 cursor-pointer">
-                                <input type="radio" name="target" checked className="w-4 h-4 text-indigo-600" />
-                                <span className="text-sm font-bold text-slate-700">All visitors</span>
-                            </label>
-                            <label className="flex items-center gap-3 cursor-pointer opacity-50">
-                                <input type="radio" name="target" disabled className="w-4 h-4" />
-                                <span className="text-sm font-bold text-slate-700">Specific segment</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    {/* Exposure / Experiment Block - THE KEY FEATURE */}
                     <div className="mb-10 bg-white rounded-2xl p-6 border-2 border-indigo-100 shadow-xl shadow-indigo-50 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-4">
-                            <Sparkles className="text-indigo-600/20" size={48} />
+                        <div className="absolute top-0 right-0 p-4 opacity-10">
+                            <Icon name="sparkles" size={64} className="text-indigo-600" />
                         </div>
-
                         <div className="flex items-center gap-2 mb-6">
-                            <div className="p-2 bg-indigo-600 text-white rounded-lg">
-                                <BarChart3 size={18} />
-                            </div>
-                            <h3 className="font-extrabold text-slate-900 text-lg">A/B/n Testing & Exposure</h3>
+                            <div className="p-2 bg-indigo-600 text-white rounded-lg"><Icon name="bar-chart-3" size={18} /></div>
+                            <h3 className="font-extrabold text-slate-900 text-lg">Exposure & Experimentation</h3>
                         </div>
 
-                        {/* Traffic Allocation Method */}
-                        <div className="mb-8">
-                            <div className="flex items-center gap-2 mb-3">
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Allocation method</label>
-                                <HelpCircle size={14} className="text-slate-300" />
-                            </div>
-                            <div className="relative w-72">
-                                <select
-                                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 font-bold focus:ring-2 focus:ring-indigo-500 appearance-none"
-                                    value={allocationMethod}
-                                    onChange={(e) => setAllocationMethod(e.target.value)}
-                                >
+                        <div className="space-y-8">
+                            <div>
+                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-3">Allocation method</label>
+                                <select className="w-72 px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 font-bold focus:ring-2 focus:ring-indigo-500" value={allocationMethod} onChange={(e) => setAllocationMethod(e.target.value)}>
                                     <option>Manual</option>
                                     <option>Multi-armed Bandit</option>
                                     <option>Contextual Bandit</option>
                                 </select>
-                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                             </div>
-                        </div>
 
-                        {/* Main Traffic Component */}
-                        <div className="mb-10">
-                            <div className="flex justify-between items-center mb-3">
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Exposed Traffic</label>
-                                <span className="font-bold text-indigo-600">{exposedTraffic}%</span>
-                            </div>
-                            <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                                <span className="text-xs font-extrabold text-slate-400 w-32 uppercase">Exposed traffic</span>
-                                <input
-                                    type="range"
-                                    min="0" max="100"
-                                    value={exposedTraffic}
-                                    onChange={(e) => setExposedTraffic(e.target.value)}
-                                    className="flex-1"
-                                />
-                                <div className="flex items-center gap-1 bg-white border border-slate-200 rounded px-2 py-1 min-w-[60px] justify-center">
-                                    <span className="text-xs font-bold">{exposedTraffic}%</span>
+                            <div>
+                                <div className="flex justify-between items-center mb-3">
+                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Exposed Traffic</label>
+                                    <span className="font-bold text-indigo-600">{exposedTraffic}%</span>
+                                </div>
+                                <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                    <input type="range" min="0" max="100" value={exposedTraffic} onChange={(e) => setExposedTraffic(parseInt(e.target.value))} className="flex-1" />
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Variations to serve */}
-                        <div>
-                            <div className="flex justify-between items-end mb-4">
-                                <div>
-                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Variations to serve</label>
-                                    <p className="text-[11px] text-slate-400">Select multiple content pieces to find the highest performing version.</p>
+                            <div>
+                                <div className="flex justify-between items-center mb-4">
+                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Variations</label>
+                                    <button onClick={allocateEqually} className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-all">Allocate equally</button>
                                 </div>
-                                {variations.length > 1 && (
-                                    <button
-                                        onClick={allocateEqually}
-                                        className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-all"
-                                    >
-                                        Allocate equally
-                                    </button>
-                                )}
-                            </div>
-
-                            <div className="space-y-3">
-                                {variations.map((v, idx) => (
-                                    <div key={v.id} className="flex items-center gap-4 bg-white border border-slate-100 p-4 rounded-xl shadow-sm hover:border-indigo-200 transition-all">
-                                        <GripVertical size={16} className="text-slate-200 cursor-grab" />
-                                        <div className="flex-1 flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold text-[10px]">
-                                                {idx === 0 ? 'ORIG' : `VAR ${idx}`}
-                                            </div>
-                                            <div className="flex-1 min-w-[200px]">
+                                <div className="space-y-3">
+                                    {variations.map((v, idx) => (
+                                        <div key={v.id} className="flex items-center gap-4 bg-white border border-slate-100 p-4 rounded-xl shadow-sm hover:border-indigo-200 transition-all">
+                                            <Icon name="grip-vertical" size={16} className="text-slate-200" />
+                                            <div className="flex-1">
                                                 <div className="text-sm font-bold text-slate-800">{v.name}</div>
-                                                <div className="text-[10px] text-slate-400">Content ID: {v.id}</div>
+                                                <div className="text-[10px] text-slate-400">ID: {v.id}</div>
+                                            </div>
+                                            <div className="flex items-center gap-4 w-64">
+                                                <input type="range" min="0" max="100" value={v.exposition} onChange={(e) => {
+                                                    const updated = [...variations];
+                                                    updated[idx].exposition = parseInt(e.target.value);
+                                                    setVariations(updated);
+                                                }} className="flex-1" />
+                                                <span className="text-xs font-bold w-12 text-center">{v.exposition}%</span>
                                             </div>
                                         </div>
-
-                                        {variations.length > 1 && (
-                                            <div className="flex items-center gap-4 w-64">
-                                                <input
-                                                    type="range"
-                                                    min="0" max="100"
-                                                    value={v.exposition}
-                                                    onChange={(e) => {
-                                                        const newVal = parseInt(e.target.value);
-                                                        const updated = [...variations];
-                                                        updated[idx].exposition = newVal;
-                                                        setVariations(updated);
-                                                    }}
-                                                    className="flex-1"
-                                                />
-                                                <div className="flex items-center gap-1 bg-slate-50 border border-slate-100 rounded px-2 py-1 min-w-[60px] justify-center">
-                                                    <span className="text-xs font-bold">{v.exposition}%</span>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {idx > 0 && (
-                                            <button
-                                                onClick={() => removeVariation(v.id)}
-                                                className="p-2 text-slate-300 hover:text-red-500 transition-colors"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        )}
-                                        <button className="p-2 text-slate-300 hover:text-indigo-600 transition-colors">
-                                            <Plus size={16} />
-                                        </button>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
-
-                            <button
-                                onClick={addVariation}
-                                className="mt-4 flex items-center gap-2 text-indigo-600 text-xs font-bold hover:bg-indigo-50 px-4 py-2 rounded-lg transition-all"
-                            >
-                                <Plus size={16} /> Create a new variation
-                            </button>
                         </div>
                     </div>
+                </div>
+            );
+        };
 
-                    {/* Section Placeholders */}
-                    <div className="space-y-4 opacity-40 grayscale pointer-events-none">
-                        <SectionPlaceholder label="Triggers" />
-                        <SectionPlaceholder label="Scheduling" optional />
-                        <SectionPlaceholder label="Display settings" optional />
+        function App() {
+            const [activeTab, setActiveTab] = useState('rules');
+            return (
+                <div className="flex h-screen overflow-hidden bg-slate-50">
+                    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col pt-6 shrink-0">
+                        <div className="px-6 mb-8 flex items-center gap-2">
+                            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center"><Icon name="zap" className="text-white w-5 h-5" /></div>
+                            <span className="font-bold text-xl tracking-tight italic text-slate-900">Vireo</span>
+                        </div>
+                        <nav className="flex-1 px-4 space-y-1">
+                            <NavItem icon={<Icon name="layout-grid" />} label="Content" active={activeTab === 'content'} onClick={() => setActiveTab('content')} />
+                            <NavItem icon={<Icon name="target" />} label="Rules" active={activeTab === 'rules'} onClick={() => setActiveTab('rules')} />
+                            <NavItem icon={<Icon name="bar-chart-3" />} label="Goals" active={activeTab === 'goals'} onClick={() => setActiveTab('goals')} />
+                        </nav>
+                        <div className="p-4 border-t border-slate-100">
+                            <a href="../index.html" className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 text-sm font-medium">
+                                <Icon name="arrow-left" size={14} /> Back to Gallery
+                            </a>
+                        </div>
+                    </aside>
+                    <div className="flex-1 flex flex-col overflow-hidden">
+                        <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-12 shrink-0">
+                            <span className="font-bold text-slate-900 italic text-indigo-600">A/B/n Testing in Personalization</span>
+                            <div className="flex gap-3">
+                                <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-bold shadow-indigo-100 shadow-md">LAUNCH</button>
+                            </div>
+                        </header>
+                        <main className="flex-1 overflow-y-auto">
+                            {activeTab === 'rules' ? <RuleConfiguration /> : <div className="p-12 text-slate-400 italic">Section under construction</div>}
+                        </main>
                     </div>
                 </div>
             );
         }
 
-        function SectionPlaceholder({ label, optional }) {
-            return (
-                <div className="p-6 border border-slate-200 rounded-2xl flex justify-between items-center">
-                    <div className="flex items-center gap-4">
-                        <div className="w-2 h-2 rounded-full bg-slate-200"></div>
-                        <span className="font-bold text-slate-900">{label}</span>
-                        {optional && <span className="text-xs text-slate-400">(Optional)</span>}
-                    </div>
-                    <ChevronDown size={18} className="text-slate-300" />
-                </div>
-            );
-        }
-
-        function NavItem({ icon, label, active, onClick }) {
-            return (
-                <button
-                    onClick={onClick}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${active
-                        ? 'bg-indigo-50 text-indigo-700'
-                        : 'text-slate-500 hover:bg-slate-50'
-                        }`}
-                >
-                    {icon}
-                    {label}
-                </button>
-            );
-        }
-
-        const rootElement = document.getElementById('root');
-        if (rootElement) {
-            const root = ReactDOM.createRoot(rootElement);
-            root.render(<App />);
-        }
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     </script>
 </body>
 

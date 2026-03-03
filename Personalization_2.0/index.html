@@ -28,6 +28,7 @@
 
         input[type="range"] {
             -webkit-appearance: none;
+            appearance: none;
             width: 100%;
             height: 4px;
             background: #e2e8f0;
@@ -135,10 +136,10 @@
                     <div className="flex-1 flex flex-col overflow-hidden">
                         <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-12 shrink-0">
                             <div className="flex items-center gap-4 text-sm">
-                                <span className="font-bold text-slate-900 italic">My new personalization</span>
+                                <span className="font-bold text-slate-900 italic text-indigo-600">A/B/n Testing Mode</span>
                                 <div className="flex items-center gap-2 text-slate-400">
                                     <div className="w-2 h-2 rounded-full bg-slate-300"></div>
-                                    <span>0 out of 1 rules online</span>
+                                    <span>A/B/n testing in Personalization</span>
                                 </div>
                                 <span className="text-slate-400">Saved 4 min ago</span>
                             </div>
@@ -409,8 +410,8 @@
                 <button
                     onClick={onClick}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${active
-                            ? 'bg-indigo-50 text-indigo-700'
-                            : 'text-slate-500 hover:bg-slate-50'
+                        ? 'bg-indigo-50 text-indigo-700'
+                        : 'text-slate-500 hover:bg-slate-50'
                         }`}
                 >
                     {icon}

@@ -6,11 +6,11 @@ This repository is designed for rapid product ideation, allowing you to bridge t
 
 ## 🚀 How we build here
 - **Rapid Prototyping**: We build lightweight, high-fidelity prototypes using React, Tailwind, and AI-generated assets.
-- **Visual Cross-Navigation**: Use the central [Gallery](file:///Users/kulaginivan/Desktop/ivan-antigravity/gallery.html) as your project hub.
+- **Visual Cross-Navigation**: Use the central [Gallery](file:///Users/kulaginivan/Desktop/ivan-antigravity/index.html) as your project hub.
 - **AI-Augmented Work**: Every prototype is enhanced with AI-generated assets and "Tinker" modes for prompt refinement.
 
 ## 📁 Repository Structure
-- `gallery.html`: The central entry point for all prototypes.
+- `index.html`: The central entry point for all prototypes.
 - `Feature_Forge/`: Our first major prototype — a CRO Experiment Hub.
 - `assets/`: Shared assets across the forge.
 - `.github/`: Automated deployment workflows.

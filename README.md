@@ -11,7 +11,7 @@ This repository is designed for rapid product ideation, allowing you to bridge t
 
 ## 📁 Repository Structure
 - `index.html`: The central entry point for all prototypes.
-- `Feature_Forge/`: Our first major prototype — a CRO Experiment Hub.
+- `CRO_Test_Dashboard/`: Our first major prototype — a CRO Experiment Hub.
 - `assets/`: Shared assets across the forge.
 - `.github/`: Automated deployment workflows.
 

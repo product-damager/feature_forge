@@ -26,7 +26,7 @@
             width: 100%;
             height: 2px;
             background: #4f46e5;
-            border-radius: 5px;
+            border-radius: 50x;
             outline: none;
         }
 
@@ -42,19 +42,19 @@
             box-shadow: 0 0 0 4px white;
         }
 
-        /* App Layout Styles */
-        .sidebar-item-active {
-            background-color: #f0f1ff;
-            color: #4f46e5;
-            border-right: 2px solid #4f46e5;
-        }
-
         .section-divider {
             border-bottom: 1px solid #f3f4f6;
         }
 
         .app-shadow {
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        /* Custom styles for the allocation inputs */
+        .allocation-input:focus-within {
+            border-color: #4f46e5;
+            ring: 2px;
+            ring-color: rgba(79, 70, 229, 0.1);
         }
     </style>
 </head>
@@ -82,7 +82,9 @@
                 'grip-vertical': 'M9 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm0 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm0 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm7-14a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm0 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm0 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0z',
                 'help-circle': 'M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3 M12 17h.01',
                 'arrow-left': 'M19 12H5M12 19l-7-7 7-7',
-                'settings': 'M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z'
+                'settings': 'M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
+                'x': 'M18 6L6 18M6 6l12 12',
+                'shuffle': 'M16 3h5v5 M4 20L21 3 M21 16v5h-5 M15 15l6 6 M4 4l5 5'
             };
             return (
                 <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -91,7 +93,7 @@
             );
         };
 
-        const CONTENT_OPTIONS = ["AI Changes", "Graphic content", "Code content", "Winner content"];
+        const CONTENT_OPTIONS = ["Original", "AI Changes", "Graphic content", "Code content", "Winner content"];
 
         const RuleConfiguration = () => {
             const [isABTesting, setIsABTesting] = useState(false);
@@ -99,17 +101,35 @@
             const [exposedTraffic, setExposedTraffic] = useState(100);
             const [allocationMethod, setAllocationMethod] = useState('Manual');
             const [variations, setVariations] = useState([
-                { id: 1, type: "AI Changes", allocation: 50 },
-                { id: 2, type: "Graphic content", allocation: 50 }
+                { id: 1, type: "Original", allocation: 50 },
+                { id: 2, type: "AI Changes", allocation: 50 }
             ]);
 
+            const isBandit = allocationMethod.includes('bandit');
+
             const addVariation = () => {
-                if (variations.length >= 4) return;
-                setVariations([...variations, { id: Date.now(), type: CONTENT_OPTIONS[variations.length % 4], allocation: 0 }]);
+                const available = CONTENT_OPTIONS.filter(opt => !variations.some(v => v.type === opt));
+                const nextType = available.length > 0 ? available[0] : CONTENT_OPTIONS[variations.length % 5];
+                setVariations([...variations, { id: Date.now(), type: nextType, allocation: 0 }]);
+            };
+
+            const removeVariation = (id) => {
+                if (variations.length <= 2) return;
+                setVariations(variations.filter(v => v.id !== id));
+            };
+
+            const allocateEqually = () => {
+                const count = variations.length;
+                const equalShare = Math.floor(100 / count);
+                const remainder = 100 % count;
+                setVariations(variations.map((v, idx) => ({
+                    ...v,
+                    allocation: idx === 0 ? equalShare + remainder : equalShare
+                })));
             };
 
             return (
-                <div className="bg-white min-h-full py-8 px-10 max-w-2xl mx-auto border-l border-slate-100 shadow-sm">
+                <div className="bg-white min-h-full py-8 px-10 max-w-2xl mx-auto border-l border-slate-100 shadow-sm transition-all duration-300">
                     {/* Header */}
                     <div className="flex items-center justify-between mb-8">
                         <div className="flex items-center gap-2">
@@ -137,7 +157,7 @@
                         <div className="flex items-center justify-between cursor-pointer group">
                             <div className="flex items-center gap-2">
                                 <span className="text-[13px] font-bold text-[#1e293b]">Segments</span>
-                                <span className="text-[12px] text-indigo-600 font-medium">All visitors are targeted</span>
+                                <span className="text-[12px] text-indigo-600 font-medium font-bold uppercase tracking-wider text-[10px] bg-indigo-50 px-2 py-0.5 rounded ml-2">Everyone</span>
                             </div>
                             <Icon name="chevron-right" size={16} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
                         </div>
@@ -159,9 +179,9 @@
                                     className="w-full"
                                 />
                             </div>
-                            <div className="flex items-center gap-2 px-3 py-1.5 border border-slate-200 rounded-md bg-white min-w-[70px]">
-                                <span className="text-[13px] font-medium text-slate-700">{exposedTraffic}%</span>
-                                <div className="flex flex-col gap-0.5 ml-auto">
+                            <div className="flex items-center gap-2 px-3 py-1.5 border border-slate-200 rounded-md bg-white min-w-[75px] shadow-sm">
+                                <span className="text-[13px] font-bold text-slate-700">{exposedTraffic}%</span>
+                                <div className="flex flex-col gap-0.5 ml-auto text-slate-400">
                                     <Icon name="chevron-down" size={8} className="rotate-180" />
                                     <Icon name="chevron-down" size={8} />
                                 </div>
@@ -171,83 +191,114 @@
 
                     {/* Content Section */}
                     <div className="mb-0 py-6 border-b border-slate-100">
-                        <div className="mb-4">
+                        <div className="mb-6">
                             <label className="block text-[13px] font-bold text-[#1e293b] mb-1">Content to display</label>
-                            <p className="text-[12px] text-slate-500">Select the content to display to your exposed visitors.</p>
+                            <p className="text-[12px] text-slate-500">Select the feature variations you want to test:</p>
                         </div>
 
                         {!isABTesting ? (
                             <div className="space-y-4">
                                 <div className="relative">
-                                    <select className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-md text-[14px] text-slate-700 outline-none appearance-none cursor-pointer pr-10">
+                                    <select className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-md text-[14px] text-slate-700 font-medium outline-none appearance-none cursor-pointer pr-10 shadow-sm focus:border-indigo-400">
                                         {CONTENT_OPTIONS.map(opt => <option key={opt}>{opt}</option>)}
                                     </select>
                                     <Icon name="chevron-down" size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                                 </div>
                                 <button
                                     onClick={() => setIsABTesting(true)}
-                                    className="flex items-center gap-1 text-indigo-600 font-bold text-[13px] hover:text-indigo-700 transition-colors"
+                                    className="group flex items-center gap-1.5 text-indigo-600 font-bold text-[13px] hover:text-indigo-700 transition-all"
                                 >
-                                    <Icon name="plus" size={16} className="stroke-[3]" />
+                                    <div className="w-5 h-5 rounded-full border-2 border-indigo-600 flex items-center justify-center group-hover:bg-indigo-50 transition-colors">
+                                        <Icon name="plus" size={12} className="stroke-[3]" />
+                                    </div>
                                     Select another content
                                 </button>
                             </div>
                         ) : (
                             <div className="space-y-6">
-                                {/* Allocation Method selector - Added per request */}
+                                {/* Allocation Method selector */}
                                 <div className="mb-4">
-                                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Allocation method</label>
-                                    <div className="relative w-48">
+                                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                                        Allocation method
+                                        <Icon name="help-circle" size={12} className="text-slate-400" />
+                                    </label>
+                                    <div className="relative">
                                         <select
-                                            className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-md text-[13px] text-slate-700 outline-none appearance-none cursor-pointer pr-8 font-medium"
+                                            className="w-full px-4 py-2 bg-white border border-slate-200 rounded-md text-[14px] text-slate-700 outline-none appearance-none cursor-pointer pr-10 font-bold shadow-sm hover:border-slate-300 transition-colors"
                                             value={allocationMethod}
                                             onChange={(e) => setAllocationMethod(e.target.value)}
                                         >
                                             <option>Manual</option>
-                                            <option>Multi-armed Bandit</option>
+                                            <option>Multi-armed bandit</option>
+                                            <option>Contextual bandit</option>
                                         </select>
-                                        <Icon name="chevron-down" size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                        <Icon name="chevron-down" size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-[1fr_120px] gap-4 mb-2">
-                                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Content</span>
-                                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider text-right pr-2">Allocation</span>
+                                <div className="grid grid-cols-[1fr_120px_24px] gap-4 mb-2 items-end">
+                                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Variation</span>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest pl-1">Exposition</span>
+                                        {!isBandit && (
+                                            <button onClick={allocateEqually} title="Allocate equally" className="p-1 hover:bg-slate-50 text-indigo-500 rounded transition-colors">
+                                                <Icon name="shuffle" size={14} className="stroke-[2.5]" />
+                                            </button>
+                                        )}
+                                    </div>
+                                    <span></span>
                                 </div>
 
-                                <div className="space-y-3">
+                                <div className="space-y-4">
                                     {variations.map((v, idx) => (
-                                        <div key={v.id} className="grid grid-cols-[1fr_120px] gap-4 items-center">
-                                            <div className="relative">
+                                        <div key={v.id} className="grid grid-cols-[1fr_120px_24px] gap-4 items-center animate-in fade-in slide-in-from-top-1 duration-200">
+                                            <div className="relative group">
+                                                {idx === 0 && (
+                                                    <div className="absolute -top-5 left-0 flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                                        Control <Icon name="help-circle" size={10} />
+                                                    </div>
+                                                )}
                                                 <select
-                                                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-md text-[14px] text-slate-700 outline-none appearance-none cursor-pointer pr-10"
+                                                    className={`w-full px-4 py-2.5 bg-white border ${idx === 0 ? 'border-indigo-200 bg-indigo-50/5' : 'border-slate-200'} rounded-md text-[14px] text-slate-700 font-medium outline-none appearance-none cursor-pointer pr-10 shadow-sm focus:border-indigo-400 transition-all`}
                                                     defaultValue={v.type}
                                                 >
                                                     {CONTENT_OPTIONS.map(opt => <option key={opt}>{opt}</option>)}
                                                 </select>
                                                 <Icon name="chevron-down" size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                                {idx === 0 && <div className="absolute top-0 right-0 h-full w-1.5 bg-indigo-500 rounded-r-md"></div>}
                                             </div>
-                                            <div className="flex items-center gap-2 px-3 py-2 border border-slate-200 rounded-md bg-white">
+                                            <div className={`flex items-center gap-2 px-3 py-2 border ${isBandit ? 'bg-slate-50 border-slate-100' : 'bg-white border-slate-200'} rounded-md transition-all`}>
                                                 <input
                                                     type="text"
-                                                    value={`${v.allocation}%`}
-                                                    className="w-full text-right text-[13px] font-medium text-slate-700 outline-none"
+                                                    value={isBandit ? "Auto-adjusted" : `${v.allocation}.00%`}
+                                                    className={`w-full text-right text-[13px] font-bold outline-none bg-transparent ${isBandit ? 'text-slate-400 font-medium' : 'text-slate-700'}`}
                                                     readOnly
                                                 />
-                                                <div className="flex flex-col gap-0.5">
-                                                    <Icon name="chevron-down" size={8} className="rotate-180" />
-                                                    <Icon name="chevron-down" size={8} />
-                                                </div>
+                                                {!isBandit && (
+                                                    <div className="flex flex-col gap-0.5 text-slate-300">
+                                                        <Icon name="chevron-down" size={8} className="rotate-180" />
+                                                        <Icon name="chevron-down" size={8} />
+                                                    </div>
+                                                )}
                                             </div>
+                                            <button
+                                                onClick={() => removeVariation(v.id)}
+                                                disabled={variations.length <= 2}
+                                                className={`p-1.5 rounded-full transition-colors ${variations.length <= 2 ? 'text-slate-100 cursor-not-allowed' : 'text-slate-300 hover:text-red-500 hover:bg-red-50'}`}
+                                            >
+                                                <Icon name="x" size={16} strokeWidth={2.5} />
+                                            </button>
                                         </div>
                                     ))}
                                 </div>
 
                                 <button
                                     onClick={addVariation}
-                                    className="flex items-center gap-1 text-indigo-600 font-bold text-[13px] hover:text-indigo-700 transition-colors"
+                                    className="group flex items-center gap-1.5 text-indigo-600 font-bold text-[13px] hover:text-indigo-700 transition-all pt-2"
                                 >
-                                    <Icon name="plus" size={16} className="stroke-[3]" />
+                                    <div className="w-5 h-5 rounded-full border-2 border-indigo-600 flex items-center justify-center group-hover:bg-indigo-50 transition-colors">
+                                        <Icon name="plus" size={12} className="stroke-[3]" />
+                                    </div>
                                     Create a new variation
                                 </button>
                             </div>
@@ -256,15 +307,15 @@
 
                     {/* Other Sections */}
                     {["Triggers", "Scheduling", "Display settings", "Rollback conditions"].map((label) => (
-                        <div key={label} className="py-6 border-b border-slate-100 last:border-0">
-                            <div className="flex items-center justify-between cursor-pointer group">
+                        <div key={label} className="py-6 border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition-colors cursor-pointer group px-1 -mx-1">
+                            <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <span className="text-[13px] font-bold text-[#1e293b]">{label}</span>
-                                    {label === "Triggers" && <span className="text-[12px] text-[#eab308] font-medium italic">Not configured</span>}
-                                    {(label === "Scheduling" || label === "Display settings" || label === "Rollback conditions") && <span className="text-[12px] text-slate-400 font-medium">(Optional)</span>}
-                                    {label === "Rollback conditions" && <span className="text-[12px] text-indigo-600 font-medium ml-2">2 defined</span>}
+                                    {label === "Triggers" && <span className="text-[11px] text-amber-600 font-bold uppercase tracking-wider bg-amber-50 px-2 py-0.5 rounded ml-2">Not configured</span>}
+                                    {(label === "Scheduling" || label === "Display settings" || label === "Rollback conditions") && <span className="text-[12px] text-slate-400 font-medium italic opacity-60">(Optional)</span>}
+                                    {label === "Rollback conditions" && <span className="text-[11px] text-indigo-600 font-bold uppercase tracking-wider bg-indigo-50 px-2 py-0.5 rounded ml-2">2 defined</span>}
                                 </div>
-                                <Icon name="chevron-right" size={16} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
+                                <Icon name="chevron-right" size={16} className="text-slate-300 group-hover:text-slate-600 group-hover:translate-x-0.5 transition-all" />
                             </div>
                         </div>
                     ))}
@@ -277,11 +328,11 @@
             return (
                 <div className="flex h-screen overflow-hidden bg-white">
                     {/* Left Mini Sidebar */}
-                    <aside className="w-[60px] bg-[#1a1c2d] flex flex-col items-center py-4 shrink-0">
-                        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center mb-10">
-                            <Icon name="zap" className="text-white w-5 h-5 fill-current" />
+                    <aside className="w-[64px] bg-[#1a1c2d] flex flex-col items-center py-5 shrink-0">
+                        <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center mb-12 shadow-lg shadow-indigo-500/20">
+                            <Icon name="zap" className="text-white w-6 h-6 fill-current" />
                         </div>
-                        <div className="flex flex-col gap-8 text-slate-400">
+                        <div className="flex flex-col gap-10 text-slate-500">
                             <Icon name="eye" size={20} className="cursor-pointer hover:text-white transition-colors" />
                             <Icon name="target" size={20} className="cursor-pointer text-indigo-400" />
                             <Icon name="bar-chart-3" size={20} className="cursor-pointer hover:text-white transition-colors" />
@@ -291,48 +342,56 @@
                     </aside>
 
                     {/* Middle List Sidebar */}
-                    <aside className="w-[280px] border-r border-slate-100 flex flex-col shrink-0">
-                        <header className="h-[70px] flex items-center px-6 border-b border-slate-50">
-                            <h2 className="font-bold text-slate-800">Targeting rules</h2>
+                    <aside className="w-[300px] border-r border-slate-100 flex flex-col shrink-0 bg-[#f8fafc]/30">
+                        <header className="h-[74px] flex items-center px-8 border-b border-slate-100/60">
+                            <h2 className="font-bold text-slate-800 tracking-tight">Targeting rules</h2>
                         </header>
-                        <div className="p-4 flex-1">
-                            <button className="w-full flex items-center justify-center gap-2 py-2 bg-indigo-600 text-white rounded-md text-[13px] font-bold mb-6">
-                                <Icon name="plus" size={16} /> ADD TARGETING RULE
+                        <div className="p-5 flex-1 overflow-y-auto">
+                            <button className="w-full flex items-center justify-center gap-2 py-2.5 bg-indigo-600 text-white rounded-lg text-[12px] font-bold mb-8 shadow-md shadow-indigo-100 hover:bg-indigo-700 transition-all hover:-translate-y-0.5 active:translate-y-0">
+                                <Icon name="plus" size={16} className="stroke-[3]" /> ADD TARGETING RULE
                             </button>
-                            <div className="p-4 border-2 border-indigo-600 rounded-md bg-white shadow-sm relative mb-4">
-                                <div className="text-[13px] font-bold text-slate-800 mb-1">Targeting rule 1</div>
-                                <div className="text-[11px] text-indigo-600 font-medium">100% of All visitors exposed to AI Changes</div>
-                                <div className="absolute right-2 top-2 text-slate-300">
-                                    <Icon name="more-vertical" size={16} />
+                            <div className="p-5 border-2 border-indigo-500 rounded-xl bg-white shadow-xl shadow-indigo-50 relative mb-4 ring-4 ring-indigo-50/50">
+                                <div className="text-[13px] font-bold text-slate-900 mb-1.5 flex items-center justify-between">
+                                    Targeting rule 1
+                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                                </div>
+                                <div className="text-[11px] text-indigo-600 font-bold leading-relaxed uppercase tracking-wide opacity-80">100% of All visitors exposed to Original</div>
+                                <div className="absolute right-3 top-5 text-slate-300 hover:text-slate-600 cursor-pointer">
+                                    <Icon name="more-vertical" size={18} />
                                 </div>
                             </div>
                         </div>
                     </aside>
 
-                    {/* Main Content (The Panel We Care About) */}
+                    {/* Main Content */}
                     <div className="flex-1 flex flex-col overflow-hidden">
-                        <header className="h-[70px] bg-white border-b border-slate-100 flex items-center justify-between px-8 shrink-0">
-                            <div className="flex items-center gap-6">
-                                <span className="font-bold text-[15px] text-slate-800">My new personalization</span>
-                                <div className="flex items-center gap-4 text-slate-400 text-[12px]">
-                                    <div className="flex items-center gap-1.5">
+                        <header className="h-[74px] bg-white border-b border-slate-100/60 flex items-center justify-between px-10 shrink-0">
+                            <div className="flex items-center gap-8">
+                                <div className="flex items-center gap-2">
+                                    <span className="font-bold text-[16px] text-slate-900 tracking-tight">My new personalization</span>
+                                    <Icon name="chevron-down" size={14} className="text-slate-400" />
+                                </div>
+                                <div className="flex items-center gap-5 text-slate-400 text-[12px] font-medium font-bold">
+                                    <div className="flex items-center gap-2 bg-slate-50 px-3 py-1 rounded-full">
                                         <div className="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
                                         <span>0 out of 1 rules online</span>
                                     </div>
-                                    <span>Saved 1 h ago</span>
+                                    <span className="opacity-60 uppercase tracking-widest text-[10px]">Saved 1 h ago</span>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-3">
-                                <button className="px-5 py-2 hover:bg-slate-50 border border-slate-200 rounded-md text-[13px] font-bold flex items-center gap-2 text-slate-600">
+                            <div className="flex items-center gap-4">
+                                <button className="px-5 py-2 hover:bg-slate-50 border border-slate-200 rounded-lg text-[13px] font-bold flex items-center gap-2 text-slate-600 transition-all hover:border-slate-300">
                                     <Icon name="eye" size={16} /> SIMULATE
                                 </button>
-                                <button className="px-6 py-2 bg-indigo-600 text-white rounded-md text-[13px] font-bold">
+                                <button className="px-8 py-2.5 bg-[#4f46e5] hover:bg-[#4338ca] text-white rounded-lg text-[14px] font-extrabold shadow-lg shadow-indigo-100 transition-all hover:-translate-y-0.5 active:translate-y-0">
                                     LAUNCH
                                 </button>
                             </div>
                         </header>
-                        <main className="flex-1 overflow-y-auto bg-[#fcfcfd]">
-                            <RuleConfiguration />
+                        <main className="flex-1 overflow-y-auto bg-[#fcfcfd] custom-scrollbar">
+                            <div className="min-h-full flex items-center justify-center bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:24px_24px]">
+                                <RuleConfiguration />
+                            </div>
                         </main>
                     </div>
                 </div>

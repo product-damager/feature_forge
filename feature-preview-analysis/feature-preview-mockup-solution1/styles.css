@@ -122,6 +122,30 @@ h3 {
   font-size: 12px;
 }
 
+.switch-solution-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: var(--highlight-bg);
+  color: var(--primary-purple);
+  border: 1px solid rgba(145, 97, 255, 0.2);
+  border-radius: 20px;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.switch-solution-link:hover {
+  background-color: rgba(145, 97, 255, 0.1);
+  border-color: var(--primary-purple);
+}
+
+.switch-solution-link .material-icons {
+  font-size: 16px;
+}
+
 /* App Body containing Sidebar, Main Canvas, Right Panel */
 .app-body {
   display: flex;

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Kameleoon - Feature Preview Prototype (Solution 2)</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <!-- Material Icons for UI -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+
+<body>
+
+  <div class="top-nav">
+    <div class="left-nav">
+      <div class="logo">
+        <!-- Abstract logo shape -->
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#1C1C1C" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="8" cy="8" r="4" />
+          <circle cx="16" cy="16" r="4" />
+          <circle cx="16" cy="8" r="4" />
+          <circle cx="8" cy="16" r="4" />
+        </svg>
+      </div>
+      <div class="flag-title">
+        Banner sales
+      </div>
+    </div>
+    <div class="center-nav">
+      <span class="material-icons info-icon">info_outline</span>
+      <span class="saved-text">Last saved: 3/31/2026, 9:49 AM</span>
+    </div>
+    <div class="right-nav">
+      <div class="action-icons">
+        <span class="material-icons">share</span>
+        <span class="material-icons">chat_bubble_outline</span>
+        <span class="material-icons">more_vert</span>
+      </div>
+      <div class="action-icons">
+        <span class="material-icons">refresh</span>
+      </div>
+      <button class="save-btn" disabled>SAVE &check;</button>
+    </div>
+  </div>
+
+  <div class="app-body">
+
+    <!-- Collapsed Left Menu -->
+    <div class="sidebar">
+      <div class="nav-item">
+        <span class="material-icons">code</span>
+        <span>Set Up</span>
+        <span class="material-icons expand">expand_more</span>
+      </div>
+      <div class="nav-item active">
+        <span class="material-icons">flag</span>
+        <span>Rollout Planner</span>
+        <span class="material-icons expand">expand_less</span>
+      </div>
+      <div class="nav-item">
+        <span class="material-icons">show_chart</span>
+        <span>Reporting</span>
+        <span class="material-icons expand">expand_more</span>
+      </div>
+    </div>
+
+    <!-- Main Center Canvas -->
+    <div class="main-canvas">
+      <div class="canvas-content">
+
+        <div class="header-row">
+          <h1>Rollout Planner <span class="divider">|</span> <span class="env-text">Production</span></h1>
+          <div class="toggle-switch on">
+            <span class="toggle-text">On</span>
+            <div class="toggle-knob"></div>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <h2>Delivery rules</h2>
+          <div class="toolbar-actions">
+            <div class="filter-dropdown">
+              <span class="material-icons">filter_alt</span> All rules <span class="material-icons">expand_more</span>
+            </div>
+            <button class="btn-add">
+              + Add a rule
+            </button>
+          </div>
+        </div>
+
+        <p class="sub-text">If your flag is turned on, rules will be evaluated</p>
+
+        <div class="rules-list">
+
+          <!-- Rule 1 -->
+          <div class="rule-card" id="rule-1">
+            <div class="rule-num">1</div>
+            <div class="rule-content">
+              <div class="rule-title-row">
+                <span class="material-icons rule-icon">gps_fixed</span>
+                <span class="rule-name">Loyal customers target</span>
+                <span class="badge badge-active">Active</span>
+              </div>
+              <div class="rule-details">
+                <span class="detail-label">Loyal Customers:</span> 100% on <span class="variation-text">loyal
+                  banner</span>
+              </div>
+            </div>
+            <div class="rule-actions">
+              <span class="material-icons">more_vert</span>
+            </div>
+          </div>
+
+          <!-- Rule 2 -->
+          <div class="rule-card" id="rule-2">
+            <div class="rule-num">2</div>
+            <div class="rule-content">
+              <div class="rule-title-row">
+                <span class="material-icons rule-icon">gps_fixed</span>
+                <span class="rule-name">New customers target</span>
+                <span class="badge badge-active">Active</span>
+              </div>
+              <div class="rule-details">
+                <span class="detail-label">New Customers:</span> 69% on <span class="variation-text">new banner</span>
+              </div>
+            </div>
+            <div class="rule-actions">
+              <span class="material-icons">more_vert</span>
+            </div>
+          </div>
+
+          <!-- Rule 3 -->
+          <div class="rule-card" id="rule-3">
+            <div class="rule-num">3</div>
+            <div class="rule-content">
+              <div class="rule-title-row">
+                <span class="material-icons rule-icon">gps_fixed</span>
+                <span class="rule-name">Targeted Delivery</span>
+                <span class="badge badge-active">Active</span>
+              </div>
+              <div class="rule-details">
+                <span class="detail-label">England users:</span> 50% on <span class="variation-text">fish and chips
+                  banner</span>
+              </div>
+            </div>
+            <div class="rule-actions">
+              <span class="material-icons">more_vert</span>
+            </div>
+          </div>
+
+          <!-- Rule 4 -->
+          <div class="rule-card" id="rule-4">
+            <div class="rule-num">4</div>
+            <div class="rule-content">
+              <div class="rule-title-row">
+                <span class="material-icons rule-icon">gps_fixed</span>
+                <span class="rule-name">Birds</span>
+                <span class="badge badge-active">Active</span>
+              </div>
+              <div class="rule-details">
+                <span class="detail-label">Bird enthusiasts:</span> 100% on <span class="variation-text">seed
+                  banner</span>
+              </div>
+            </div>
+            <div class="rule-actions">
+              <span class="material-icons">more_vert</span>
+            </div>
+          </div>
+
+          <!-- Rule 5 -->
+          <div class="rule-card" id="rule-5">
+            <div class="rule-num">5</div>
+            <div class="rule-content">
+              <div class="rule-title-row">
+                <span class="material-icons rule-icon">gps_fixed</span>
+                <span class="rule-name">Everyone 34%</span>
+                <span class="badge badge-active">Active</span>
+              </div>
+              <div class="rule-details">
+                <span class="detail-label">All users:</span> 34% on <span class="variation-text">general banner</span>
+              </div>
+            </div>
+            <div class="rule-actions">
+              <span class="material-icons">more_vert</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="fallback-row" style="margin-bottom: 24px;">
+          <span>Then, for everyone else in Production, serve: <span
+              class="material-icons info-icon-sm">info_outline</span></span>
+          <div class="dropdown-mock">
+            Off <span class="material-icons">expand_more</span>
+          </div>
+        </div>
+
+        <!-- STATSIG-STYLE JSON TEST GATE -->
+        <div class="test-gate-section">
+          <div class="test-gate-header">
+            <h2><span class="material-icons">science</span> Rule Simulator</h2>
+            <p class="subtitle">Check if a user profile matches this flag's rules</p>
+          </div>
+          
+          <div class="test-gate-body">
+            <div class="test-gate-editor-row">
+              <div class="editor-container">
+                <div class="editor-gutter">
+                  <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div>
+                </div>
+                <textarea id="json-editor" spellcheck="false">{
+  "userID": "u_5512",
+  "country": "England",
+  "loyal": false,
+  "new": true,
+  "birds": false
+}</textarea>
+              </div>
+            </div>
+
+            <div class="test-gate-footer">
+              <button class="btn-run-test" id="run-test-btn">
+                <span class="material-icons">play_arrow</span> Run Simulation
+              </button>
+            </div>
+
+            <!-- the Evaluation Result block (starts hidden until simulated) -->
+            <div class="test-gate-result-row hidden" id="simResult">
+              <h3>Evaluation Result</h3>
+              <div class="result-card" id="resultCardBg">
+
+                <div class="result-step" id="resTargeting">
+                  <span class="material-icons step-icon" id="targetIcon">check_circle</span>
+                  <span id="targetText"><strong>Targeted:</strong> Rule #3</span>
+                </div>
+
+                <div class="result-step" id="resBucketing">
+                  <span class="material-icons step-icon" id="bucketIcon">check_circle</span>
+                  <span id="bucketText"><strong>Bucketed:</strong> 50% exposure</span>
+                </div>
+
+                <hr class="res-divider">
+
+                <div class="result-final">
+                  <span class="final-label">Final Variation:</span>
+                  <span class="result-variation" id="resVariation">fish and chips banner</span>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <!-- END TEST GATE -->
+
+      </div>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

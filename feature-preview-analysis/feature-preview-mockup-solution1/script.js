@@ -35,49 +35,67 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // --- Rule Definitions ---
-  const rulesData = [
-    {
-      id: 'rule-1',
-      name: 'Loyal customers target',
-      check: (ctx) => ctx.loyal,
-      exposure: 100,
-      variation: 'loyal banner',
-      targetDesc: 'Loyal User = ON'
-    },
-    {
-      id: 'rule-2',
-      name: 'New customers target',
-      check: (ctx) => ctx.new,
-      exposure: 69,
-      variation: 'new banner',
-      targetDesc: 'New User = ON'
-    },
-    {
-      id: 'rule-3',
-      name: 'Targeted Delivery (England 50%)',
-      check: (ctx) => ctx.country === 'England' || ctx.country === 'UK',
-      exposure: 50,
-      variation: 'fish and chips banner',
-      targetDesc: 'Country is England/UK'
-    },
-    {
-      id: 'rule-4',
-      name: 'Birds',
-      check: (ctx) => ctx.birds,
-      exposure: 100,
-      variation: 'seed banner',
-      targetDesc: 'Likes Birds = ON'
-    },
-    {
-      id: 'rule-5',
-      name: 'Everyone 34%',
-      check: () => true,
-      exposure: 34,
-      variation: 'general banner',
-      targetDesc: 'Fallback for all users'
-    }
-  ];
+  // --- New Logic for Modes ---
+  let selectedMode = 'live';
+  const modeOptions = document.querySelectorAll('.mode-option');
+  
+  modeOptions.forEach(opt => {
+    opt.addEventListener('click', () => {
+      modeOptions.forEach(o => o.classList.remove('active'));
+      opt.classList.add('active');
+      selectedMode = opt.dataset.mode;
+      resetSimulation();
+    });
+  });
+
+  // --- Rule Definitions with DRAFT support ---
+  const getRulesData = (mode) => {
+    const rules = [
+      {
+        id: 'rule-1',
+        name: 'Loyal customers target',
+        check: (ctx) => ctx.loyal,
+        exposure: 100,
+        variation: 'loyal banner',
+        targetDesc: 'Loyal User = ON'
+      },
+      {
+        id: 'rule-2',
+        name: 'New customers target',
+        check: (ctx) => ctx.new,
+        exposure: 69,
+        variation: 'new banner',
+        targetDesc: 'New User = ON'
+      },
+      {
+        id: 'rule-3',
+        name: 'Targeted Delivery (England 50%)',
+        check: (ctx) => ctx.country === 'England' || ctx.country === 'UK',
+        exposure: 50,
+        variation: 'fish and chips banner',
+        targetDesc: 'Country is England/UK'
+      },
+      {
+        id: 'rule-4',
+        name: 'Birds',
+        check: (ctx) => mode === 'draft' ? false : ctx.birds, // DISABLED IN DRAFT
+        exposure: 100,
+        variation: 'seed banner',
+        targetDesc: 'Likes Birds = ON',
+        draftNote: mode === 'draft' ? 'Rule disabled in draft' : null
+      },
+      {
+        id: 'rule-5',
+        name: 'Everyone 34%',
+        check: () => true,
+        exposure: mode === 'draft' ? 100 : 34, // 100% IN DRAFT
+        variation: 'general banner',
+        targetDesc: 'Fallback for all users',
+        draftNote: mode === 'draft' ? 'Exposure increased to 100%' : null
+      }
+    ];
+    return rules;
+  };
 
   // --- Deterministic Hashing ---
   function getBucketScore(visitorId, ruleId) {
@@ -94,9 +112,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function resetSimulation() {
     simResult.classList.add('hidden');
     resultCardBg.className = 'result-card';
+    document.getElementById('impactNotice').classList.add('hidden');
+    document.getElementById('draftBadge').classList.add('hidden');
+    
     document.querySelectorAll('.rule-card').forEach(ruleEl => {
-      ruleEl.classList.remove('is-simulated', 'is-dimmed', 'is-fallthrough');
-      ruleEl.querySelectorAll('.sim-annotation').forEach(a => a.remove());
+      ruleEl.classList.remove('is-simulated', 'is-dimmed', 'is-fallthrough', 'is-winner');
+      ruleEl.querySelectorAll('.sim-annotation, .winner-badge, .skip-reason').forEach(a => a.remove());
     });
   }
 
@@ -124,25 +145,43 @@ document.addEventListener('DOMContentLoaded', () => {
       birds: simToggles.birds.classList.contains('on')
     };
 
-    let winningRuleMatch = null;
-    let fallthroughRules = []; 
-    let ignoredRules = [];
+    // RUN BOTH for comparison
+    const liveRules = getRulesData('live');
+    const draftRules = getRulesData('draft');
 
-    // Evaluate rules top-to-bottom
-    for (const rule of rulesData) {
-      if (rule.check(context)) {
-        const score = getBucketScore(vid, rule.id);
-        const isBucketed = score < rule.exposure;
+    const runRules = (rules) => {
+      let winningRuleMatch = null;
+      let fallthroughRules = [];
+      let skippedRules = [];
 
-        if (isBucketed) {
-          winningRuleMatch = { rule, score };
-          break; // Found our winner, stop evaluation
+      for (const rule of rules) {
+        if (rule.check(context)) {
+          const score = getBucketScore(vid, rule.id);
+          const isBucketed = score < rule.exposure;
+
+          if (isBucketed) {
+            winningRuleMatch = { rule, score };
+            break; 
+          } else {
+            fallthroughRules.push({ rule, score });
+          }
         } else {
-          // TARGETED but MISSED BUCKET -> Fall through
-          fallthroughRules.push({ rule, score });
+          skippedRules.push(rule);
         }
-      } else {
-        ignoredRules.push(rule);
+      }
+      return { winningRuleMatch, fallthroughRules, skippedRules };
+    };
+
+    const liveRes = runRules(liveRules);
+    const draftRes = runRules(draftRules);
+
+    const winner = selectedMode === 'live' ? liveRes : draftRes;
+    const { winningRuleMatch, fallthroughRules, skippedRules } = winner;
+
+    if (selectedMode === 'draft') {
+      document.getElementById('draftBadge').classList.remove('hidden');
+      if (liveRes.winningRuleMatch?.rule.id !== draftRes.winningRuleMatch?.rule.id) {
+        document.getElementById('impactNotice').classList.remove('hidden');
       }
     }
 
@@ -150,17 +189,33 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.rule-card').forEach(ruleEl => {
       const isWinner = winningRuleMatch && winningRuleMatch.rule.id === ruleEl.id;
       const ftMatch = fallthroughRules.find(f => f.rule.id === ruleEl.id);
-      const isIgnored = ignoredRules.find(r => r.id === ruleEl.id);
+      const isSkipped = skippedRules.find(r => r.id === ruleEl.id);
 
       if (isWinner) {
-        ruleEl.classList.add('is-simulated');
-        addAnnotation(ruleEl, 'success', `✓ Targeted & Bucketed (${winningRuleMatch.score < winningRuleMatch.rule.exposure ? '<' : '>='} ${winningRuleMatch.rule.exposure}%)`);
+        ruleEl.classList.add('is-winner');
+        const titleRow = ruleEl.querySelector('.rule-title-row');
+        const badge = document.createElement('span');
+        badge.className = 'winner-badge';
+        badge.innerHTML = '<span class="material-icons" style="font-size:12px">stars</span> WINNER';
+        titleRow.appendChild(badge);
+        
+        addAnnotation(ruleEl, 'success', `✓ Targeted & Bucketed (Score: ${winningRuleMatch.score} < ${winningRuleMatch.rule.exposure}%)`);
         ruleEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } else if (ftMatch) {
         ruleEl.classList.add('is-fallthrough');
         addAnnotation(ruleEl, 'fallthrough', `Targeted but missed ${ftMatch.rule.exposure}% exposure (Score: ${ftMatch.score}). Falling through ↓`);
-      } else {
+      } else if (isSkipped) {
         ruleEl.classList.add('is-dimmed');
+        
+        // Custom reasons based on the rule
+        let reasonText = "Attribute mismatch";
+        const ruleData = winner.skippedRules.find(r => r.id === ruleEl.id);
+        if (ruleData.id === 'rule-1') reasonText = "Loyal User = OFF";
+        if (ruleData.id === 'rule-2') reasonText = "New User = OFF";
+        if (ruleData.id === 'rule-3') reasonText = `Country "${context.country}" is not England/UK`;
+        if (ruleData.id === 'rule-4') reasonText = ruleData.draftNote || "Likes Birds = OFF";
+        
+        addAnnotation(ruleEl, 'skipped', `Skipped: ${reasonText}`);
       }
     });
 
@@ -198,10 +253,18 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function addAnnotation(ruleEl, type, text) {
+    const statusContainer = ruleEl.querySelector('.rule-status-container');
+    if (!statusContainer) return;
+
     const div = document.createElement('div');
     div.className = `sim-annotation annotation-${type}`;
-    div.innerHTML = `<span class="material-icons" style="font-size:14px">${type === 'success' ? 'check_circle' : 'info'}</span> ${text}`;
-    ruleEl.appendChild(div);
+    
+    let icon = 'info';
+    if (type === 'success') icon = 'check_circle';
+    if (type === 'skipped') icon = 'block';
+    
+    div.innerHTML = `<span class="material-icons" style="font-size:14px">${icon}</span> ${text}`;
+    statusContainer.appendChild(div);
   }
 
 });

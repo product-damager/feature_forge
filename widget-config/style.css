@@ -244,13 +244,14 @@ body {
     position: relative;
 }
 
-.search-input-wrapper i {
+.search-input-wrapper span {
     position: absolute;
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-muted);
-    font-size: 16px;
+    font-size: 18px;
+    pointer-events: none;
 }
 
 .search-input {

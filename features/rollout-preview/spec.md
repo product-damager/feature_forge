@@ -1,4 +1,4 @@
-# Feature Spec — Feature Preview (Rule Simulator)
+# Feature Spec — Rollout Preview (Rule Simulator)
 
 ## Problem
 
@@ -48,20 +48,21 @@ Introduce a **Rollout Preview Panel** integrated into the Rollout Planner.
 ### Core Concept
 
 Allow users to simulate a user profile and:
-- evaluate the full rule chain (top-to-bottom)
+
+- evaluate the rule chain (top-to-bottom)
 - identify the matched rule
-- understand why it matched (Targeting check vs. Bucketing check)
-- visualize the deterministic hash (Bucket Ruler)
+- understand why it matched (targeting vs bucketing)
+- visualize deterministic bucketing (Bucket Ruler)
 - see the resulting variation
-- compare "Draft" vs "Live" outcomes
+- compare Draft vs Live outcomes
 
 ---
 
 ### Selected Direction
 
-**Direction A — Rollout Preview Panel (Side-by-Side Context)**
+**Rule Simulator Panel (Side-by-Side Context)**
 
-This is chosen because:
+Chosen because it:
 - aligns with Kameleoon’s panel-based UI
 - provides full transparency of evaluation logic
 - scales to complex rule setups
@@ -73,34 +74,42 @@ This is chosen because:
 
 ### Entry Point
 
-- Add a **Preview Rollout** in the Rollout Planner header (near “Add rule”)
+- Add a **Preview Rollout** button in the Rollout Planner header (near “Add rule”)
 
 ---
 
 ### Step 1 — Open Simulator
 
 - Clicking "Preview Rollout" replaces the right configuration panel
-- A new **Preview Rollout** panel appears
+- A dedicated **Preview Panel** appears
 
 ---
 
 ### Step 2 — Define User Profile
 
 User inputs:
-- Dynamic Attribute Registry: auto-populated based on attributes used in the current flag configuration.
-- Support for key/value pairs and raw JSON snippets.
-- Profile Presets: allow users to save and load test user profiles (e.g., "UK VIP Guest").
-- Visitor ID: used for deterministic bucketing.
+
+- Attribute Registry:
+  - auto-populated from attributes used in the flag
+  - supports structured key/value inputs
+
+- Optional JSON input (advanced users)
+
+- Profile Presets:
+  - save and reuse test profiles
+
+- Visitor ID:
+  - required for deterministic bucketing
 
 ---
 
 ### Step 3 — Run Simulation
 
-On submit:
-
 System:
-- runs evaluation using the same logic as SDK
+
+- executes evaluation using SDK-equivalent logic
 - does NOT trigger tracking or analytics
+- produces deterministic results
 
 ---
 
@@ -108,33 +117,132 @@ System:
 
 #### Left Panel (Rules List)
 
-- Non-matching rules → dimmed with explicit "reason for skip" labels
-- Evaluated rules → sequential highlighting following the SDK's evaluation speed (optional "Step-Through" mode)
-- Matching rule → clearly highlighted with a "WINNER" badge
-- Fall-through rules → marked with "Missed exposure" if targeting matched but bucketing failed
+Visual-only feedback:
+
+- non-matching rules → dimmed
+- evaluated rules → default state
+- matching rule → highlighted with "WINNER"
+
+Constraints:
+
+- no textual explanations in rule cards
+- no duplication of reasoning from the right panel
 
 ---
 
 #### Right Panel (Simulator Output)
 
-Displays:
+##### 1. Result (Primary Information)
 
-- Matched Rule:
-  - rule name (as defined in UI)
-  - rule type (Targeted / Rollout / Experiment)
+Always visible without scrolling:
 
-- Result:
-  - variation served
-  - flag state / variable values
+- variation served
+- matched rule (name + type)
+- flag state / variable values
 
-- Evaluation Path (The Trace):
-  - Rule-by-rule verdict:
-    - **Skipped**: Attribute mismatch (e.g., `device != 'mobile'`)
-    - **Fall-through**: Targeted but missed bucketing (Show **Bucket Ruler**: `Score 72` vs `Exposure 50%`)
-    - **Matched**: Full qualification
+---
 
-- Draft Comparison:
-  - Immediate visual alert if "Draft" simulation differs from "Live" variation.
+##### 2. Draft vs Live Comparison
+
+Always displayed in Draft mode:
+
+- if different → warning message
+- if identical → confirmation message
+
+Never silent.
+
+---
+
+##### 3. Evaluation Trace
+
+Detailed rule-by-rule explanation:
+
+Each rule includes:
+
+- **Skipped**
+  - targeting mismatch
+  - explicit reason (e.g., `country != UK`)
+
+- **Fall-through**
+  - targeting matched
+  - failed bucketing
+  - includes Bucket Ruler:
+    - user score
+    - exposure threshold
+
+- **Matched**
+  - full qualification
+
+---
+
+##### 4. Evaluation Boundary
+
+Clear termination message:
+
+"Evaluation stopped at rule X — Y rules not reached"
+
+Prevents ambiguity about remaining rules.
+
+---
+
+## Information Hierarchy
+
+The simulator must prioritize outcome clarity over trace detail.
+
+Order:
+
+1. Result
+2. Draft vs Live comparison
+3. Evaluation trace
+
+The user must understand the outcome immediately without scrolling.
+
+---
+
+## Determinism & Input Rules
+
+Simulation must be deterministic.
+
+- Visitor ID is required
+- If empty:
+  - system generates one
+  - and writes it back into the input field
+
+Running the same simulation twice must produce identical results.
+
+---
+
+## Evaluation Visibility Rules
+
+- Rules are evaluated sequentially (top-to-bottom)
+- Evaluation stops at the first matching rule
+- Only evaluated rules are shown in the trace
+- A termination message indicates non-evaluated rules
+
+---
+
+## Left Panel Feedback Rules
+
+- Rule cards provide visual feedback only
+- No textual explanations
+- No duplication of trace information
+
+---
+
+## Draft Mode Behavior
+
+Draft mode represents unsaved configuration.
+
+The UI must communicate:
+
+- "Draft = unsaved configuration"
+
+Behavior:
+
+- simulation compares Draft vs Live
+- always displays comparison result:
+  - difference → warning
+  - match → confirmation
 
 ---
 
@@ -151,17 +259,18 @@ Displays:
 ### Business Impact
 
 - Reduced risk of production issues
-- Faster time-to-market for features
-- Higher adoption of Feature Flags
+- Faster time-to-market
+- Increased adoption of Feature Flags
 
 ---
 
 ### Product Impact
 
-- Strengthens Kameleoon’s differentiation on:
-  - complex rule systems
-  - transparency
-  - control
+Strengthens Kameleoon positioning on:
+
+- complex rule systems
+- transparency
+- control
 
 ---
 
@@ -169,28 +278,17 @@ Displays:
 
 ### Technical
 
-- Can we reuse the exact SDK evaluation logic for simulation?
-- How do we handle:
-  - hashing / bucketing consistency?
-  - environment differences?
-- Should simulation be:
-  - frontend-driven
-  - or API-based?
+- Can SDK evaluation logic be reused directly?
+- Where should simulation run:
+  - frontend (fast, limited)
+  - backend (accurate, heavier)?
+- How to ensure hashing consistency across environments?
 
 ---
 
 ### UX
 
-- How do we handle very large rule sets (20+ rules)? (Resolved: Use compact list view with scroll-to-winner)
-- Support for simulation of unsaved rollout configuration (Draft Mode).
-- Should we support a switch between parameters and raw JSON input? (Resolved: Include both in Attribute Registry)
-- Shared test profiles across team members.
+- Handling large rule sets (20+ rules)
+  - current direction: scrollable list with "scroll to winner"
 
----
-
-### Scope Decisions
-
-- Do we include Quick Test Bar as a secondary feature later?
-- Do we extend this to:
-  - personalizations
-  - experiments
+- Shared presets across team members

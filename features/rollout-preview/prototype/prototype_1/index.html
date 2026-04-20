@@ -3,12 +3,11 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Kameleoon - Feature Preview Prototype</title>
+  <title>Kameleoon — Rollout Preview Prototype</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <!-- Material Icons for UI -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 
@@ -17,17 +16,14 @@
   <div class="top-nav">
     <div class="left-nav">
       <div class="logo">
-        <!-- Abstract logo shape -->
-        <svg w="20" h="20" viewBox="0 0 24 24" fill="#1C1C1C" xmlns="http://www.w3.org/2000/svg">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#1C1C1C" xmlns="http://www.w3.org/2000/svg">
           <circle cx="8" cy="8" r="4" />
           <circle cx="16" cy="16" r="4" />
           <circle cx="16" cy="8" r="4" />
           <circle cx="8" cy="16" r="4" />
         </svg>
       </div>
-      <div class="flag-title">
-        Banner sales
-      </div>
+      <div class="flag-title">Banner sales</div>
     </div>
     <div class="center-nav">
       <span class="material-icons info-icon">info_outline</span>
@@ -39,17 +35,14 @@
         <span class="material-icons">chat_bubble_outline</span>
         <span class="material-icons">more_vert</span>
       </div>
-      <a href="../feature-preview-mockup-solution2/index.html" class="switch-solution-link">
-        <span class="material-icons">swap_horiz</span>
-        Switch to Solution 2
-      </a>
-      <button class="save-btn" disabled>SAVE &check;</button>
+
+      <button class="save-btn" disabled>SAVE ✓</button>
     </div>
   </div>
 
   <div class="app-body">
 
-    <!-- Collapsed Left Menu -->
+    <!-- Left Sidebar Navigation -->
     <div class="sidebar">
       <div class="nav-item">
         <span class="material-icons">code</span>
@@ -68,7 +61,7 @@
       </div>
     </div>
 
-    <!-- Main Center Canvas -->
+    <!-- Main Canvas -->
     <div class="main-canvas">
 
       <div class="header-row">
@@ -85,255 +78,266 @@
           <div class="filter-dropdown">
             <span class="material-icons">filter_alt</span> All rules <span class="material-icons">expand_more</span>
           </div>
-          <!-- NEW: Simulate Feature Button -->
-          <button class="btn-simulate" id="openSimulatorBtn">
+          <button class="btn-preview" id="openSimulatorBtn">
             <span class="material-icons icon-sm">play_arrow</span>
-            Simulate
+            Preview Rollout
           </button>
-          <button class="btn-add">
-            + Add a rule
-          </button>
+          <button class="btn-add">+ Add a rule</button>
         </div>
       </div>
 
-      <p class="sub-text">If your flag is turned on, rules will be evaluated</p>
+      <p class="sub-text">If your flag is turned on, rules are evaluated top to bottom — the first match wins.</p>
 
       <div class="rules-list">
 
         <!-- Rule 1 -->
         <div class="rule-card" id="rule-1">
-          <div class="rule-num">1</div>
-          <div class="rule-content">
-            <div class="rule-title-row">
-              <span class="material-icons rule-icon">gps_fixed</span>
-              <span class="rule-name">Loyal customers target</span>
-              <span class="badge badge-active">Active</span>
+          <div class="rule-row">
+            <div class="rule-num">1</div>
+            <div class="rule-content">
+              <div class="rule-title-row">
+                <span class="material-icons rule-icon">person</span>
+                <span class="rule-name">Loyal customers target</span>
+                <span class="badge badge-active">Active</span>
+              </div>
+              <div class="rule-details">
+                <span class="detail-label">Loyal Customers:</span> 100% → <span class="variation-text">loyal banner</span>
+              </div>
             </div>
-            <div class="rule-details">
-              <span class="detail-label">Loyal Customers:</span> 100% on <span class="variation-text">loyal
-                banner</span>
+            <div class="rule-actions">
+              <span class="material-icons">more_vert</span>
             </div>
-          </div>
-          <div class="rule-status-container" id="status-1"></div>
-          <div class="rule-actions">
-            <span class="material-icons">more_vert</span>
           </div>
         </div>
 
         <!-- Rule 2 -->
         <div class="rule-card" id="rule-2">
-          <div class="rule-num">2</div>
-          <div class="rule-content">
-            <div class="rule-title-row">
-              <span class="material-icons rule-icon">gps_fixed</span>
-              <span class="rule-name">New customers target</span>
-              <span class="badge badge-active">Active</span>
+          <div class="rule-row">
+            <div class="rule-num">2</div>
+            <div class="rule-content">
+              <div class="rule-title-row">
+                <span class="material-icons rule-icon">person_add</span>
+                <span class="rule-name">New customers target</span>
+                <span class="badge badge-active">Active</span>
+              </div>
+              <div class="rule-details">
+                <span class="detail-label">New Customers:</span> 69% → <span class="variation-text">new banner</span>
+              </div>
             </div>
-            <div class="rule-details">
-              <span class="detail-label">New Customers:</span> 69% on <span class="variation-text">new banner</span>
+            <div class="rule-actions">
+              <span class="material-icons">more_vert</span>
             </div>
-          </div>
-          <div class="rule-status-container" id="status-2"></div>
-          <div class="rule-actions">
-            <span class="material-icons">more_vert</span>
           </div>
         </div>
 
         <!-- Rule 3 -->
         <div class="rule-card" id="rule-3">
-          <div class="rule-num">3</div>
-          <div class="rule-content">
-            <div class="rule-title-row">
-              <span class="material-icons rule-icon">gps_fixed</span>
-              <span class="rule-name">Targeted Delivery</span>
-              <span class="badge badge-active">Active</span>
+          <div class="rule-row">
+            <div class="rule-num">3</div>
+            <div class="rule-content">
+              <div class="rule-title-row">
+                <span class="material-icons rule-icon">location_on</span>
+                <span class="rule-name">Targeted Delivery — England</span>
+                <span class="badge badge-active">Active</span>
+              </div>
+              <div class="rule-details">
+                <span class="detail-label">England users:</span> 50% → <span class="variation-text">fish and chips banner</span>
+              </div>
             </div>
-            <div class="rule-details">
-              <span class="detail-label">England users:</span> 50% on <span class="variation-text">fish and chips
-                banner</span>
+            <div class="rule-actions">
+              <span class="material-icons">more_vert</span>
             </div>
-          </div>
-          <div class="rule-status-container" id="status-3"></div>
-          <div class="rule-actions">
-            <span class="material-icons">more_vert</span>
           </div>
         </div>
 
         <!-- Rule 4 -->
         <div class="rule-card" id="rule-4">
-          <div class="rule-num">4</div>
-          <div class="rule-content">
-            <div class="rule-title-row">
-              <span class="material-icons rule-icon">gps_fixed</span>
-              <span class="rule-name">Birds</span>
-              <span class="badge badge-active">Active</span>
+          <div class="rule-row">
+            <div class="rule-num">4</div>
+            <div class="rule-content">
+              <div class="rule-title-row">
+                <span class="material-icons rule-icon">flutter_dash</span>
+                <span class="rule-name">Birds</span>
+                <span class="badge badge-active">Active</span>
+              </div>
+              <div class="rule-details">
+                <span class="detail-label">Bird enthusiasts:</span> 100% → <span class="variation-text">seed banner</span>
+              </div>
             </div>
-            <div class="rule-details">
-              <span class="detail-label">Bird enthusiasts:</span> 100% on <span class="variation-text">seed
-                banner</span>
+            <div class="rule-actions">
+              <span class="material-icons">more_vert</span>
             </div>
-          </div>
-          <div class="rule-status-container" id="status-4"></div>
-          <div class="rule-actions">
-            <span class="material-icons">more_vert</span>
           </div>
         </div>
 
         <!-- Rule 5 -->
         <div class="rule-card" id="rule-5">
-          <div class="rule-num">5</div>
-          <div class="rule-content">
-            <div class="rule-title-row">
-              <span class="material-icons rule-icon">gps_fixed</span>
-              <span class="rule-name">Everyone 34%</span>
-              <span class="badge badge-active">Active</span>
+          <div class="rule-row">
+            <div class="rule-num">5</div>
+            <div class="rule-content">
+              <div class="rule-title-row">
+                <span class="material-icons rule-icon">trending_up</span>
+                <span class="rule-name">Everyone 34%</span>
+                <span class="badge badge-active">Active</span>
+              </div>
+              <div class="rule-details">
+                <span class="detail-label">All users:</span> 34% → <span class="variation-text">general banner</span>
+              </div>
             </div>
-            <div class="rule-details">
-              <span class="detail-label">All users:</span> 34% on <span class="variation-text">general banner</span>
+            <div class="rule-actions">
+              <span class="material-icons">more_vert</span>
             </div>
-          </div>
-          <div class="rule-status-container" id="status-5"></div>
-          <div class="rule-actions">
-            <span class="material-icons">more_vert</span>
           </div>
         </div>
+
       </div>
 
       <div class="fallback-row">
-        <span>Then, for everyone else in Production, serve: <span
-            class="material-icons info-icon-sm">info_outline</span></span>
-        <div class="dropdown-mock">
-          Off <span class="material-icons">expand_more</span>
-        </div>
+        <span>Then, for everyone else in Production, serve: <span class="material-icons info-icon-sm">info_outline</span></span>
+        <div class="dropdown-mock">Off <span class="material-icons">expand_more</span></div>
       </div>
 
     </div>
 
-    <!-- Right Configuration / Simulator Panel -->
+    <!-- Right Panel -->
     <div class="right-panel" id="rightPanel">
 
-      <!-- DEFAULT PANEL View -->
+      <!-- DEFAULT CONFIG VIEW -->
       <div id="defaultConfigView">
         <div class="panel-header">
-          <h2>Configure Rule | <span class="blue-text">Targeted Delivery</span> <span class="id-text">ID: 377311 <span
-                class="material-icons copy-icon">content_copy</span></span></h2>
+          <h2>Configure Rule | <span class="blue-text">Targeted Delivery</span> <span class="id-text">ID: 377311 <span class="material-icons copy-icon">content_copy</span></span></h2>
           <span class="material-icons close-panel">close</span>
         </div>
         <div class="info-banner">
-          Activate your feature for a <strong>specific audience</strong> only. You can turn it on now or schedule an
-          automatic activation.
+          Activate your feature for a <strong>specific audience</strong> only.
         </div>
-
         <div class="form-group">
           <label>Name</label>
           <input type="text" value="Loyal customers target" class="input-field" readonly>
         </div>
-
-        <div class="empty-state-placeholder">
-          <!-- Omitted full config for prototype focus, just a placeholder -->
-          <p style="color:#aaa; font-size:12px; margin-top:20px;">[Standard Config Options...]</p>
-        </div>
+        <p style="color:#aaa; font-size:12px; margin-top:20px;">[Standard rule config…]</p>
       </div>
 
-
-      <!-- SIMULATOR PANEL View -->
+      <!-- SIMULATOR PANEL VIEW -->
       <div id="simulatorView" class="hidden">
+
         <div class="panel-header">
-          <h2>Rule Simulator | <span class="purple-text">Preview</span></h2>
-          <span class="material-icons close-panel" id="closeSimulator">close</span>
-        </div>
-
-        <div class="info-banner sim-banner">
-          Check if a user matches this flag's rules before releasing. Simulate targeting to trace the evaluation path.
-        </div>
-
-        <div class="form-container">
-          <div class="mode-toggle-row">
-            <h3>Test Profile Properties</h3>
-            <div class="mode-selector" id="modeSelector">
+          <div class="panel-header-left">
+            <h2>Rollout Preview</h2>
+            <div class="mode-pill" id="modeSelector">
               <span class="mode-option active" data-mode="live">Live</span>
               <span class="mode-option" data-mode="draft">Draft</span>
             </div>
           </div>
+          <span class="material-icons close-panel" id="closeSimulator">close</span>
+        </div>
+        <p class="draft-hint hidden" id="draftHint">Draft = unsaved configuration</p>
 
-          <div class="prop-row">
-            <label>Visitor ID</label>
-            <input type="text" placeholder="e.g. u_12345" class="input-field" id="simVisitorId">
-          </div>
+        <div class="info-banner sim-banner">
+          Simulate how rules are evaluated for a specific user. No tracking is triggered.
+        </div>
 
-          <div class="prop-row">
-            <label>Country</label>
-            <select class="input-field select-field" id="simCountry">
-              <optgroup label="Europe">
-                <option value="England">England</option>
-                <option value="UK">United Kingdom</option>
-                <option value="France">France</option>
-              </optgroup>
-              <optgroup label="Other">
-                <option value="US">United States</option>
-                <option value="Other">Other</option>
-              </optgroup>
+        <div class="form-container">
+
+          <!-- Presets -->
+          <div class="form-section">
+            <label class="section-label">Profile Preset <span class="label-hint">auto-fills attributes</span></label>
+            <select class="input-field select-field" id="simPreset">
+              <option value="">— Select a preset —</option>
+              <option value="uk_loyal">UK Loyal Customer</option>
+              <option value="new_user">New User (non-loyal)</option>
+              <option value="bird_fan">Bird Enthusiast</option>
+              <option value="us_anon">US Anonymous User</option>
             </select>
           </div>
 
-          <div class="prop-row">
-            <label>Loyal User</label>
-            <div class="toggle-switch sim-toggle off" id="simLoyal">
-              <div class="toggle-knob"></div>
-            </div>
+          <!-- Visitor ID -->
+          <div class="form-section">
+            <label class="section-label">Visitor ID <span class="label-hint">determines bucket score</span></label>
+            <input type="text" placeholder="e.g. u_12345" class="input-field" id="simVisitorId">
           </div>
 
-          <div class="prop-row">
-            <label>New User</label>
-            <div class="toggle-switch sim-toggle off" id="simNew">
-              <div class="toggle-knob"></div>
-            </div>
-          </div>
-
-          <div class="prop-row">
-            <label>Likes Birds</label>
-            <div class="toggle-switch sim-toggle off" id="simBirds">
-              <div class="toggle-knob"></div>
+          <!-- Attribute Registry -->
+          <div class="form-section">
+            <label class="section-label">Attributes <span class="label-hint">used in this flag's rules</span></label>
+            <div class="attr-registry">
+              <div class="prop-row">
+                <label>Country</label>
+                <select class="input-field select-field" id="simCountry">
+                  <optgroup label="Europe">
+                    <option value="England">England</option>
+                    <option value="UK">United Kingdom</option>
+                    <option value="France">France</option>
+                  </optgroup>
+                  <optgroup label="Other">
+                    <option value="US">United States</option>
+                    <option value="Other">Other</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div class="prop-row">
+                <label>Loyal User</label>
+                <div class="toggle-switch sim-toggle off" id="simLoyal"><div class="toggle-knob"></div></div>
+              </div>
+              <div class="prop-row">
+                <label>New User</label>
+                <div class="toggle-switch sim-toggle off" id="simNew"><div class="toggle-knob"></div></div>
+              </div>
+              <div class="prop-row">
+                <label>Likes Birds</label>
+                <div class="toggle-switch sim-toggle off" id="simBirds"><div class="toggle-knob"></div></div>
+              </div>
             </div>
           </div>
 
           <button class="btn-run-sim" id="runSimBtn">
-            <span class="material-icons">bolt</span> Run Simulation
+            <span class="material-icons">play_arrow</span> Run Simulation
           </button>
+
         </div>
 
+        <!-- Simulation Results -->
         <div class="simulation-result hidden" id="simResult">
-          <h3>Evaluation Result</h3>
-          
-          <div class="comparison-tabs hidden" id="comparisonTabs">
-            <div class="comp-tab active" data-view="draft">Draft Variation</div>
-            <div class="comp-tab" data-view="live">Live Variation</div>
-          </div>
 
-          <div class="result-card" id="resultCardBg">
-            <div class="draft-badge-panel hidden" id="draftBadge">DRAFT LOGIC</div>
-            <div class="result-step" id="resTargeting">
-              <span class="material-icons step-icon" id="targetIcon">check_circle</span>
-              <span id="targetText"><strong>Targeted:</strong> Rule #3</span>
-            </div>
-
-            <div class="result-step" id="resBucketing">
-              <span class="material-icons step-icon" id="bucketIcon">check_circle</span>
-              <span id="bucketText"><strong>Bucketed:</strong> 50% exposure</span>
-            </div>
-
-            <hr class="res-divider">
-
-            <div class="result-final">
-              <span class="final-label">Final Variation:</span>
-              <span class="result-variation" id="resVariation">fish and chips banner</span>
+          <!-- 1. Result (primary — always visible first) -->
+          <div class="result-section">
+            <div class="result-section-header">Result</div>
+            <div class="result-card" id="resultCardBg">
+              <div class="draft-badge-panel hidden" id="draftBadge">DRAFT</div>
+              <div class="result-final-row">
+                <span class="res-label">Matched rule</span>
+                <span id="resMatchedRule" class="res-value">—</span>
+              </div>
+              <div class="result-final-row">
+                <span class="res-label">Rule type</span>
+                <span id="resRuleType" class="res-value res-type">—</span>
+              </div>
+              <div class="result-final-row">
+                <span class="res-label">Variation</span>
+                <span class="result-variation" id="resVariation">—</span>
+              </div>
             </div>
           </div>
 
-          <div class="impact-notice hidden" id="impactNotice">
-            <span class="material-icons">warning_amber</span>
-            Draft logic results in a different variation than Live.
+          <!-- 2. Draft comparison (always shown in draft mode, never silent) -->
+          <div class="draft-comparison hidden" id="draftComparison">
+            <div class="impact-notice hidden" id="impactNotice">
+              <span class="material-icons">warning_amber</span>
+              Draft differs from Live — variation would change.
+            </div>
+            <div class="draft-match-notice hidden" id="draftMatchNotice">
+              <span class="material-icons">check_circle</span>
+              Draft matches Live — no variation change.
+            </div>
           </div>
+
+          <!-- 3. Evaluation Trace -->
+          <div class="result-section">
+            <div class="result-section-header">Evaluation Trace</div>
+            <div class="trace-list" id="traceList"></div>
+            <div class="trace-footer hidden" id="traceFooter"></div>
+          </div>
+
         </div>
 
       </div>

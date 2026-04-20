@@ -3,122 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Feature Forge — Logic Reimagined</title>
+    <title>Ivan Kulagin — Product Discovery Portfolio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #fbfbfc;
+            background-color: #0f172a;
+            color: #94a3b8;
         }
-        .glass {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
         }
-        .hero-gradient {
-            background: radial-gradient(circle at top right, rgba(86, 93, 242, 0.05), transparent),
-                        radial-gradient(circle at bottom left, rgba(145, 97, 255, 0.05), transparent);
+        .grid-bg {
+            background-image: radial-gradient(#1e293b 1px, transparent 1px);
+            background-size: 24px 24px;
         }
-        .step-transition {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        .tech-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            transition: all 0.2s ease-in-out;
+        }
+        .tech-card:hover {
+            border-color: #6366f1;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px -5px rgba(99, 102, 241, 0.2);
+        }
+        .btn-tech {
+            @apply px-4 py-2 bg-slate-800 border border-slate-700 rounded text-xs font-bold uppercase tracking-widest text-slate-300 hover:bg-slate-700 hover:text-white transition-all;
         }
     </style>
 </head>
-<body class="hero-gradient min-h-screen text-slate-900 selection:bg-indigo-100">
+<body class="grid-bg min-h-screen">
 
-    <!-- Navigation -->
-    <nav class="max-w-7xl mx-auto px-6 py-8 flex justify-between items-center">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="8" cy="8" r="4" />
-                    <circle cx="16" cy="16" r="4" />
-                    <circle cx="16" cy="8" r="4" />
-                    <circle cx="8" cy="16" r="4" />
-                </svg>
-            </div>
-            <span class="text-xl font-bold tracking-tight text-slate-800">Feature Forge</span>
-        </div>
-        <div class="flex gap-6 text-sm font-medium text-slate-500">
-            <a href="docs/kameleoon-context.md" class="hover:text-indigo-600 transition-colors">Context</a>
-            <a href="docs/discovery-framework.md" class="hover:text-indigo-600 transition-colors">Framework</a>
-            <a href="AI_PRODUCT_SYSTEM.md" class="hover:text-indigo-600 transition-colors">System</a>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-6 py-12 lg:py-24 grid lg:grid-cols-2 gap-16 items-center">
+    <div class="max-w-4xl mx-auto px-6 py-20">
         
-        <!-- Left Column: Copy -->
-        <div class="space-y-8">
-            <div class="space-y-4">
-                <div class="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold uppercase tracking-wider rounded-full border border-indigo-100">
-                    <span class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>
-                    Active Discovery
+        <!-- Header -->
+        <header class="mb-16 border-l-4 border-indigo-500 pl-6">
+            <h1 class="text-4xl font-bold text-white tracking-tight mb-2">Ivan Kulagin</h1>
+            <p class="text-lg text-slate-400 font-medium">Product Discovery & Logic Prototyping</p>
+            <div class="mt-4 flex gap-4 text-xs mono text-indigo-400 uppercase tracking-widest">
+                <span>[ Decisioning Platform ]</span>
+                <span>[ Kameleoon Framework ]</span>
+            </div>
+        </header>
+
+        <!-- Feature Grid -->
+        <div class="grid md:grid-cols-2 gap-6">
+
+            <!-- Card 1: Rollout Preview -->
+            <div class="tech-card p-6 rounded-lg flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-2 bg-indigo-500/10 rounded">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                        <span class="text-[10px] mono text-slate-500 uppercase tracking-tighter">Proto_01</span>
+                    </div>
+                    <h2 class="text-xl font-bold text-white mb-2">Rollout Preview</h2>
+                    <p class="text-sm text-slate-400 leading-relaxed mb-6">
+                        High-fidelity rule simulator focusing on deterministic traceability. Visualizes the top-to-bottom evaluation path and hashing logic.
+                    </p>
                 </div>
-                <h1 class="text-5xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
-                    Logic <br> <span class="text-indigo-600">Reimagined.</span>
-                </h1>
-                <p class="text-xl text-slate-500 max-w-lg leading-relaxed">
-                    A high-fidelity discovery environment for the next generation of decisioning tools. Grounded in UX truth, driven by logic.
-                </p>
-            </div>
-
-            <div class="flex flex-col sm:flex-row gap-4">
-                <a href="features/rollout-preview/prototype/prototype_1/index.html" 
-                   class="inline-flex items-center justify-center px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold shadow-xl shadow-slate-200 hover:bg-slate-800 hover:-translate-y-0.5 step-transition active:scale-95 group">
-                    Launch Rollout Preview
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 ml-3 group-hover:translate-x-1 step-transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                </a>
-                <a href="features/rollout-preview/spec.md" 
-                   class="inline-flex items-center justify-center px-8 py-4 bg-white text-slate-700 border border-slate-200 rounded-2xl font-bold hover:bg-slate-50 step-transition active:scale-95">
-                    Read Feature Spec
-                </a>
-            </div>
-
-            <div class="pt-8 border-t border-slate-100">
-                <div class="flex items-center gap-6">
-                    <div>
-                        <p class="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1">Status</p>
-                        <p class="text-sm font-semibold text-slate-600">Discovery Phase II</p>
-                    </div>
-                    <div class="w-px h-8 bg-slate-100"></div>
-                    <div>
-                        <p class="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1">Architecture</p>
-                        <p class="text-sm font-semibold text-slate-600">Panel-based</p>
-                    </div>
+                <div class="flex gap-3">
+                    <a href="features/rollout-preview/prototype/prototype_1/index.html" class="px-4 py-2 bg-indigo-600 border border-indigo-500 rounded text-xs font-bold uppercase tracking-widest text-white hover:bg-indigo-500 transition-all">Launch Prototype</a>
+                    <a href="features/rollout-preview/spec.md" class="px-4 py-2 bg-slate-800 border border-slate-700 rounded text-xs font-bold uppercase tracking-widest text-slate-300 hover:bg-slate-700 hover:text-white transition-all">Spec</a>
                 </div>
             </div>
+
+            <!-- Card 2: Global Parameters -->
+            <div class="tech-card p-6 rounded-lg flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-2 bg-emerald-500/10 rounded">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                        </div>
+                        <span class="text-[10px] mono text-slate-500 uppercase tracking-tighter">Analysis</span>
+                    </div>
+                    <h2 class="text-xl font-bold text-white mb-2">Global Parameters</h2>
+                    <p class="text-sm text-slate-400 leading-relaxed mb-6">
+                        Strategic analysis of decoupled configuration stores. Solves for consistency and traceability across large-scale experimentation environments.
+                    </p>
+                </div>
+                <div>
+                    <a href="features/global-parameters-analysis/analysis.md" class="px-4 py-2 bg-slate-800 border border-slate-700 rounded text-xs font-bold uppercase tracking-widest text-slate-300 hover:bg-slate-700 hover:text-white transition-all">View Discovery Analysis</a>
+                </div>
+            </div>
+
+            <!-- Card 3: Discovery System (Self) -->
+            <div class="tech-card p-6 rounded-lg flex flex-col justify-between opacity-60 grayscale hover:grayscale-0 transition-all">
+                <div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-2 bg-slate-500/10 rounded">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.168.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.168.477-4.5 1.253" />
+                            </svg>
+                        </div>
+                        <span class="text-[10px] mono text-slate-500 uppercase tracking-tighter">Docs</span>
+                    </div>
+                    <h2 class="text-xl font-bold text-white mb-2">Discovery Framework</h2>
+                    <p class="text-sm text-slate-400 leading-relaxed mb-6">
+                        The core AI Thinking Protocol and discovery standards used to populate this hub. Opinionated structure over vague ideas.
+                    </p>
+                </div>
+                <div>
+                    <a href="AI_PRODUCT_SYSTEM.md" class="px-4 py-2 bg-slate-800 border border-slate-700 rounded text-xs font-bold uppercase tracking-widest text-slate-300 hover:bg-slate-700 hover:text-white transition-all">System Brief</a>
+                </div>
+            </div>
+
         </div>
 
-        <!-- Right Column: Visual -->
-        <div class="relative group">
-            <div class="absolute -inset-4 bg-indigo-500/10 rounded-[2.5rem] blur-2xl group-hover:bg-indigo-500/20 step-transition"></div>
-            <div class="relative glass rounded-[2rem] overflow-hidden shadow-2xl border border-white/50">
-                <img src=".gemini/antigravity/brain/516afaed-9df6-4b98-b047-a4ff9661f30c/feature_forge_hero_1776708488245.png" 
-                     alt="Feature Forge Hero" 
-                     class="w-full h-auto object-cover group-hover:scale-105 step-transition">
-                
-                <div class="absolute bottom-6 left-6 right-6 p-6 glass rounded-2xl border border-white/50 text-slate-800">
-                    <p class="text-xs font-bold uppercase tracking-widest text-indigo-600 mb-1">Current Focus</p>
-                    <h3 class="text-lg font-bold">Deterministic Evaluation Logic</h3>
-                    <p class="text-sm text-slate-500 mt-1">Providing visibility into the rule evaluation path for complex feature rollouts.</p>
-                </div>
+        <!-- Tech Stack / Footer -->
+        <footer class="mt-20 pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex gap-4 mono text-[10px] text-slate-500 uppercase tracking-widest">
+                <span>Markdown</span>
+                <span>Tailwind</span>
+                <span>JavaScript</span>
             </div>
-        </div>
+            <p class="text-xs text-slate-600">© 2026 IVANKULAGIN.PROD</p>
+        </footer>
 
-    </main>
-
-    <!-- Footer Stats -->
-    <footer class="max-w-7xl mx-auto px-6 py-12 border-t border-slate-100 text-center">
-        <p class="text-sm text-slate-400">© 2026 Kameleoon Product Discovery. All rights reserved.</p>
-    </footer>
+    </div>
 
 </body>
 </html>

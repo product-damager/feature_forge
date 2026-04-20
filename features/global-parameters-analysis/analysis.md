@@ -1,4 +1,4 @@
-# Feature Brief: Global Parameters (Parameter Stores)
+# Feature Discovery - Global Parameters
 
 ## Step 1 — Context Understanding
 

@@ -1,10 +1,11 @@
 # Thibaud Sync: "Feature Preview"
 
-**Goal of this sync:** Align on the engineering feasibility of adding a rule validation/simulation tool to the Rollout Planner, and get your take on 3 potential UX directions.
+## 1. Goal of the Sync
+Align on the engineering feasibility of adding a rule validation/simulation tool to the Rollout Planner, and get your take on 3 potential UX directions.
 
 ---
 
-## 1. The Problem We're Solving
+## 2. Problem Overview
 Right now, configuring complex targeting rules (segments, custom attributes, percentage rollouts) in a top-to-bottom queue is opaque for our users.
 - Users can't easily verify if a specific user profile will hit the right variation before going live.
 - It causes a lot of anxiety and forces teams to test heavily in staging environments just to verify basic targeting.
@@ -12,7 +13,7 @@ Right now, configuring complex targeting rules (segments, custom attributes, per
 
 ---
 
-## 2. Three Proposed UX Directions
+## 3. Proposed Directions
 I've discovered 3 ways we could integrate this into the Rollout Planner.
 
 ### Direction A: Rule Simulator Panel (Side-by-Side Context)
@@ -32,10 +33,16 @@ I've discovered 3 ways we could integrate this into the Rollout Planner.
 
 ---
 
-## 3. Key Technical Decisions (from Dev Sync)
+## 4. Key Technical Questions
 Following the dev sync with Thibaud, he agrees with the approach and we are aligned on moving forward with **Direction A: "Rule Simulator Panel"** for prototyping.
 
 Key technical resolutions:
 1. **Stateless Evaluation:** *Manageable.* We can execute a dry run of the evaluation engine using mocked user attributes without affecting live traffic or firing false analytics.
 2. **Sticky Bucketing (Hashing):** *Manageable.* We can accurately simulate local hashing in the UI for persistent Visitor IDs to provide a deterministic preview.
 3. **Dynamic Backend Segments:** *Manageable but dependent on tech constraints.* Similar to Statsig, we'll allow users to provide the necessary raw properties to the simulator to resolve segments that usually rely on backend history telemetry.
+
+## 5. PM Recommendation
+
+**Preferred option:** I recommend we proceed with **Direction A: "Rule Simulator Panel"** for prototyping.
+
+**Reasoning:** It provides the best balance of user value and technical feasibility. It allows users to see exactly how their rules are being evaluated and helps them understand the logic behind the results. It also allows for easy debugging and troubleshooting. It also aligns with the Kameleoon design with a right panel and a recap in the "work-zone".

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Kameleoon — Targeting & Experiment rules (Personalization prototype)</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+
+<body>
+
+  <!-- Top Nav -->
+  <div class="top-nav">
+    <div class="left-nav">
+      <div class="logo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#1C1C1C" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="8" cy="8" r="4" />
+          <circle cx="16" cy="16" r="4" />
+          <circle cx="16" cy="8" r="4" />
+          <circle cx="8" cy="16" r="4" />
+        </svg>
+        <span class="material-icons logo-chev">expand_more</span>
+      </div>
+      <div class="flag-title">My new personalization</div>
+      <span class="material-icons help-icon">help_outline</span>
+      <span class="status-pill" id="onlineStatus">
+        <span class="status-dot"></span>
+        <span id="onlineStatusText">2 out of 4 rules online</span>
+      </span>
+      <span class="saved-text" id="savedText">Saved 29/01/2026</span>
+    </div>
+    <div class="right-nav">
+      <button class="btn-simulate">
+        <span class="material-icons">videocam</span>
+        SIMULATE
+      </button>
+      <span class="material-icons more-vert">more_vert</span>
+      <button class="save-btn" id="saveBtn" disabled>
+        <span class="save-btn-main">SAVE</span>
+        <span class="save-btn-sub hidden" id="saveBtnSub">
+          <span class="material-icons">error_outline</span>
+          <span id="saveBtnCount">0 Unsaved changes</span>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <div class="app-body">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="nav-item">
+        <span class="material-icons">science</span>
+        <div class="nav-text">
+          <div class="nav-title">Content</div>
+          <div class="nav-sub">Define content of your personalization</div>
+        </div>
+      </div>
+      <div class="nav-item active">
+        <span class="material-icons">my_location</span>
+        <div class="nav-text">
+          <div class="nav-title">Targeting rules</div>
+          <div class="nav-sub">Currently editing</div>
+        </div>
+        <span class="material-icons nav-chev">chevron_right</span>
+      </div>
+      <div class="nav-item">
+        <span class="material-icons">track_changes</span>
+        <div class="nav-text">
+          <div class="nav-title">Goals <span class="material-icons nav-check">check</span></div>
+          <div class="nav-sub">Select the indicators of success</div>
+        </div>
+      </div>
+      <div class="nav-item">
+        <span class="material-icons">extension</span>
+        <div class="nav-text">
+          <div class="nav-title">Integrations</div>
+          <div class="nav-sub">Add tools to follow visitors activity</div>
+        </div>
+      </div>
+
+      <div class="nav-divider"></div>
+
+      <div class="nav-section-title">
+        <span class="material-icons">settings</span>
+        <span>General Settings</span>
+      </div>
+      <div class="nav-sub-item">Main information</div>
+      <div class="nav-sub-item">Personalization custom script</div>
+      <div class="nav-sub-item">Advanced settings</div>
+    </div>
+
+    <!-- Main Canvas -->
+    <div class="main-canvas">
+
+      <div class="page-header">
+        <div>
+          <h1>Targeting rules</h1>
+          <p class="page-sub">Visitors are targeted based on the first rule they match, from top to bottom.</p>
+        </div>
+        <button class="btn-add" id="addRuleBtn">
+          <span class="material-icons">add</span>
+          ADD RULE
+        </button>
+      </div>
+
+      <div class="rules-list" id="rulesList"><!-- rendered by JS --></div>
+
+    </div>
+
+    <!-- Right Panel -->
+    <div class="right-panel" id="rightPanel">
+
+      <!-- Empty state -->
+      <div id="emptyView" class="panel-empty">
+        <span class="material-icons empty-icon">tune</span>
+        <p>Select a rule to configure, or click <strong>+ Add rule</strong>.</p>
+      </div>
+
+      <!-- Type selector (shown only when adding a new rule) -->
+      <div id="typeSelectorView" class="hidden">
+        <div class="panel-header">
+          <div class="panel-header-left">
+            <h2>Add a rule</h2>
+            <span class="step-pill">Step 1 of 2</span>
+          </div>
+          <span class="material-icons close-panel" id="cancelTypeSelect">close</span>
+        </div>
+        <p class="panel-sub">Pick a rule type. The configuration form opens after you choose.</p>
+
+        <div class="type-card-list">
+          <button class="type-card" data-type="targeting">
+            <span class="tc-icon"><span class="material-icons">my_location</span></span>
+            <span class="tc-body">
+              <span class="tc-title">Targeting rule</span>
+              <span class="tc-desc">Serve one content to a defined audience.</span>
+              <span class="tc-meta">Single content · exposure-based</span>
+            </span>
+            <span class="material-icons tc-arrow">chevron_right</span>
+          </button>
+
+          <button class="type-card type-card-experiment" data-type="experiment">
+            <span class="tc-icon tc-icon-purple"><span class="material-icons">science</span></span>
+            <span class="tc-body">
+              <span class="tc-title">Experiment rule</span>
+              <span class="tc-desc">Compare multiple contents under the same targeting.</span>
+              <span class="tc-meta">Multiple contents · manual or bandit allocation</span>
+            </span>
+            <span class="material-icons tc-arrow">chevron_right</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Rule configuration -->
+      <div id="ruleForm" class="hidden">
+
+        <div class="panel-header">
+          <div class="panel-header-left">
+            <h2 id="panelTitle">Configure the targeting rule</h2>
+            <span class="status-pill panel-status" id="panelStatus">
+              <span class="status-dot"></span>
+              <span id="panelStatusText">Online</span>
+            </span>
+            <span class="id-text" id="panelId">213048 <span class="material-icons copy-icon">content_copy</span></span>
+          </div>
+          <span class="rule-type-pill" id="ruleTypePill">
+            <span class="material-icons" id="ruleTypeIcon">my_location</span>
+            <span id="ruleTypeLabel">Targeting</span>
+          </span>
+        </div>
+
+        <div class="form-section">
+          <label class="field-label">Rule name</label>
+          <input type="text" class="input-field" id="ruleName">
+        </div>
+
+        <!-- Segments (collapsed) -->
+        <div class="config-section collapsed" data-section="segments">
+          <div class="section-head">
+            <div class="section-head-left">
+              <span class="section-title">Segments</span>
+              <span class="section-meta">A segment is targeted</span>
+            </div>
+            <span class="material-icons section-chev">chevron_right</span>
+          </div>
+        </div>
+
+        <!-- Exposure (expanded) -->
+        <div class="config-section expanded" data-section="exposure">
+          <div class="section-head">
+            <div class="section-head-left">
+              <span class="section-title">Exposure</span>
+              <span class="section-meta accent" id="exposureMeta">42%</span>
+            </div>
+            <span class="material-icons section-chev">expand_more</span>
+          </div>
+
+          <div class="section-body">
+
+            <!-- Content area -->
+            <div class="exposure-block">
+              <p class="helper-text" id="exposureHelper">Select the content to display to your exposed visitors.</p>
+
+              <!-- Single content (Targeting rule) -->
+              <div id="singleContentView">
+                <select class="input-field select-field" id="singleContentSelect">
+                  <option>AI changes</option>
+                  <option>Graphical changes</option>
+                  <option>Code content</option>
+                  <option>Existential penguins</option>
+                </select>
+              </div>
+
+              <!-- Multi-content (Experiment rule) -->
+              <div id="multiContentView" class="hidden">
+
+                <!-- Allocation mode -->
+                <div class="alloc-mode-row">
+                  <span class="field-sub-label">Allocation</span>
+                  <div class="seg-control" id="allocSeg">
+                    <button class="seg-option active" data-mode="manual">Manual</button>
+                    <button class="seg-option" data-mode="mab">Multi-armed bandit</button>
+                    <button class="seg-option" data-mode="contextual">Contextual bandit</button>
+                  </div>
+                </div>
+
+                <!-- Contents list -->
+                <div class="contents-list" id="contentsList"></div>
+
+                <div class="contents-actions">
+                  <button class="link-action" id="addContentBtn">
+                    <span class="material-icons">add</span> Add content
+                  </button>
+                  <div class="contents-actions-right">
+                    <span class="alloc-total" id="allocTotal">Total: 100% ✓</span>
+                    <button class="link-action subtle" id="autoDistributeBtn">Auto-distribute</button>
+                  </div>
+                </div>
+
+                <!-- Bandit footer (warm-up + note + contextual chips) -->
+                <div class="bandit-footer hidden" id="banditFooter">
+                  <div class="bandit-field">
+                    <label class="field-sub-label">Warm-up traffic</label>
+                    <p class="bandit-hint">Share of exposed traffic split equally before the bandit starts learning.</p>
+                    <div class="slider-row compact">
+                      <input type="range" min="0" max="50" value="20" class="slider" id="warmup">
+                      <span class="slider-val" id="warmupVal">20%</span>
+                    </div>
+                  </div>
+
+                  <div class="bandit-note">
+                    <span class="material-icons">auto_awesome</span>
+                    Allocations are managed automatically based on the personalization's primary goal.
+                  </div>
+
+                  <!-- Contextual-only -->
+                  <div class="bandit-field hidden" id="contextualOnly">
+                    <label class="field-sub-label">Context attributes</label>
+                    <div class="chip-picker" id="ctxChips"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Exposure slider (now AFTER content selection) -->
+            <div class="exposure-slider-block">
+              <label class="field-label">Targeted visitors exposed (%)</label>
+              <div class="slider-row">
+                <input type="range" min="0" max="100" value="42" class="slider" id="expSlider">
+                <input type="number" min="0" max="100" value="42" class="num-input" id="expNum">
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Triggers (collapsed) -->
+        <div class="config-section collapsed" data-section="triggers">
+          <div class="section-head">
+            <div class="section-head-left">
+              <span class="section-title">Triggers</span>
+              <span class="section-meta">Defined in the segment</span>
+            </div>
+            <span class="material-icons section-chev">chevron_right</span>
+          </div>
+        </div>
+
+        <!-- Scheduling (collapsed) -->
+        <div class="config-section collapsed" data-section="scheduling">
+          <div class="section-head">
+            <div class="section-head-left">
+              <span class="section-title">Scheduling</span>
+              <span class="section-meta">(Optional)</span>
+            </div>
+            <span class="material-icons section-chev">chevron_right</span>
+          </div>
+        </div>
+
+        <!-- Display settings (collapsed) -->
+        <div class="config-section collapsed" data-section="display">
+          <div class="section-head">
+            <div class="section-head-left">
+              <span class="section-title">Display settings</span>
+              <span class="section-meta">(Optional)</span>
+            </div>
+            <span class="material-icons section-chev">chevron_right</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

@@ -213,7 +213,7 @@ button { font-family: inherit; cursor: pointer; }
 .search input { border: none; outline: none; padding: 8px 4px; font: inherit; font-size: 13px; flex: 1; background: transparent; }
 
 /* ── Dashboard table ──────────────────────────────────────────────── */
-table.gp { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.gp { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
 table.gp thead th {
   text-align: left; font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em;
   text-transform: uppercase; color: var(--text-mut);
@@ -224,9 +224,9 @@ table.gp tbody tr { border-bottom: 1px solid var(--border-soft); cursor: pointer
 table.gp tbody tr:last-child { border-bottom: none; }
 table.gp tbody tr:hover { background: #fafafc; }
 table.gp td { padding: 13px 20px; vertical-align: middle; }
-.k-key { font-family: var(--mono); font-size: 12.5px; font-weight: 500; }
-.k-key small { display: block; font-family: var(--font); font-size: 11.5px; color: var(--text-mut); font-weight: 400; margin-top: 2px; }
-.k-val { font-family: var(--mono); font-size: 12.5px; color: var(--text-sec); max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.k-key { font-family: var(--mono); font-size: 12.5px; font-weight: 500; overflow-wrap: anywhere; }
+.k-key small { display: block; font-family: var(--font); font-size: 11.5px; color: var(--text-mut); font-weight: 400; margin-top: 2px; overflow-wrap: anywhere; }
+.k-val { display: block; font-family: var(--mono); font-size: 12.5px; color: var(--text-sec); max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .k-updated { color: var(--text-sec); font-size: 12px; }
 
 .chip {
@@ -457,5 +457,23 @@ table.gp td { padding: 13px 20px; vertical-align: middle; }
 @keyframes pulseArrow {
   0%, 100% { transform: translateX(0); opacity: 0.7; }
   50% { transform: translateX(4px); opacity: 1; }
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────
+   Keeps the dense layout intact at 100% zoom on standard screens, then
+   gracefully degrades on narrower viewports instead of forcing a
+   horizontal scrollbar that pushes the settings subnav off-screen. */
+@media (max-width: 1180px) {
+  /* Settings subnav stacks above the panel and runs as a wrap row. */
+  .settings-body { grid-template-columns: 1fr; gap: 18px; }
+  .subnav { flex-direction: row; flex-wrap: wrap; }
+  .subnav-card { flex: 1 1 240px; }
+}
+
+@media (max-width: 760px) {
+  .content { padding: 18px 16px 40px; }
+  .kpi-banner { grid-template-columns: 1fr; }
+  .subnav { flex-direction: column; }
+  .panel-head .ph-row { flex-direction: column; align-items: stretch; }
 }
 

@@ -1,5 +1,12 @@
 # Architectural Crossroad: Experiments vs Feature Flags
 
+> **Key implications for Global Parameters (read first):**
+> - In Kameleoon today, **the Feature Flag is the center of the universe** — every test requires a flag and a developer to call it. That is exactly the friction Global Parameters must eventually remove.
+> - This is the root of our **Path 1 vs Path 2** decision: Path 1 keeps flags central (a "dummy flag" workaround, low effort, high UX friction); Path 2 introduces **pure / parameter experiments** that attach directly to a parameter (high effort, gold-standard UX).
+> - **Why it matters for the MVP:** we ship Path 1 but speak Path 2 language, so the future evolution — *Experiments become a tool you can apply to either a Flag or a Parameter* — isn't a re-education. See [analysis.md](analysis.md) §6 and [engineering-brief.md](engineering-brief.md).
+
+---
+
 You just hit the exact underlying architectural challenge that separates Kameleoon from Statsig today! Your intuition as a PM is spot on.
 
 ## The Current State of Kameleoon

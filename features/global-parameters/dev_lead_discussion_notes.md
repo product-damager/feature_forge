@@ -1,5 +1,7 @@
 # Thibaud Sync: "Global Parameters"
 
+> **Status:** Sections 1–3 below are the **pre-sync agenda** (what we asked). Sections 4–5 are the **log of what was heard and what to follow up on** — fill them in right after the sync. The decision framing lives in [engineering-brief.md](engineering-brief.md); resolved open questions should be folded into [spec.md](spec.md)'s Open-questions table so there's one canonical place for the current truth.
+
 **Goal of this sync:** Align on the engineering and architectural feasibility of adding centralized "Global Parameters" (or Parameter Stores) to decouple configuration variables from individual feature flags, and get your take on 3 potential UX directions.
 
 ---
@@ -39,3 +41,24 @@ Before we commit to a design direction, I need to understand the backend/SDK ram
 3. **Traceability Indexing:** Can our architecture efficiently query and display a dependency graph for the UI? E.g., if a user edits "black_friday_discount", we need to instantly list every active flag and rule that currently links to it. Can the backend provide this mapping cheaply?
 
 *Let's discuss which direction aligns best with our current SDK state and backend constraints!*
+
+---
+
+## 4. What we heard (fill in after the sync)
+
+> Capture the dev lead's answers here. Suggested structure — replace the placeholders with actual responses.
+
+- **Payload approach:** _[same flag config file vs separate on-demand fetch — what was decided?]_
+- **Variable resolution (server vs client):** _[where does the override resolve?]_
+- **Dependency-graph queries:** _[can the backend cheaply provide the "where is this used?" mapping?]_
+- **Preferred UX direction (A / B / C):** _[flat list vs Stores vs promoted variables — and why?]_
+- **SDK appetite for `getGlobalParameter`:** _[is Path 2 feasible / wanted? rough cost?]_
+- **Other constraints raised:** _[anything unexpected]_
+
+## 5. Follow-ups
+
+> Action items and any questions that stayed open. Open questions that affect the product should be moved into [spec.md](spec.md)'s Open-questions table (the canonical list) rather than living only here.
+
+- [ ] _[owner]_ — _[action]_
+- [ ] Fold resolved items into `spec.md` Open-questions table.
+- [ ] Update `engineering-brief.md` §1b decisions with the outcomes.

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kameleoon — Global Parameters · Direction 1</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ─── Back CTA ─── -->
+  <a class="back-nav" href="../index.html">
+    <span class="material-icons">arrow_back</span> All prototypes
+  </a>
+
+  <!-- ─────── Sidebar (native Kameleoon shell) ─────── -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="mark"><span></span><span></span><span></span><span></span></span>
+      Kameleoon
+    </div>
+
+    <div class="nav-item"><span class="material-icons">science</span> Experiences</div>
+    <div class="nav-item active"><span class="material-icons">visibility</span> Features</div>
+    <div class="nav-sub active">Flags &amp; Experiments</div>
+    <div class="nav-item"><span class="material-icons">lightbulb</span> Insights</div>
+    <div class="nav-item"><span class="material-icons">grid_view</span> Studio</div>
+    <div class="nav-item"><span class="material-icons">tune</span> Settings</div>
+
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-bottom">
+      <div class="nav-item"><span class="material-icons">settings</span> Admin</div>
+      <div class="nav-item"><span class="material-icons">chevron_left</span> Collapse</div>
+    </div>
+  </aside>
+
+  <!-- ─────── Main ─────── -->
+  <div class="main">
+
+    <div class="topbar">
+      <div class="tb-item">WHAT'S NEW <span class="badge-dot">2</span></div>
+      <div class="tb-item">HELP</div>
+      <div class="tb-item"><span class="material-icons">auto_awesome</span></div>
+      <div class="avatar">IK</div>
+    </div>
+
+    <div class="content">
+      <div class="page-head">
+        <h1>Flags</h1>
+        <button class="btn-primary"><span class="material-icons">add</span> New feature flag</button>
+      </div>
+
+      <!-- Top tabs — SETTINGS active, matching the screenshot -->
+      <div class="tabs">
+        <div class="tab">Overview</div>
+        <div class="tab">Approvals</div>
+        <div class="tab">Health</div>
+        <div class="tab active">Settings</div>
+      </div>
+
+      <!-- Settings: secondary nav + content panel -->
+      <div class="settings-body">
+        <nav class="subnav">
+          <div class="subnav-card">
+            <div class="sc-icon"><span class="material-icons">verified</span></div>
+            <div class="sc-body">
+              <div class="sc-title">Approvals settings</div>
+              <div class="sc-sub">Configure settings and select flag reviewers</div>
+            </div>
+            <span class="material-icons sc-arrow">chevron_right</span>
+          </div>
+
+          <div class="subnav-card">
+            <div class="sc-icon"><span class="material-icons">group_remove</span></div>
+            <div class="sc-body">
+              <div class="sc-title">Holdouts</div>
+              <div class="sc-sub">Create excluded control groups</div>
+            </div>
+            <span class="material-icons sc-arrow">chevron_right</span>
+          </div>
+
+          <!-- NEW: Global Parameters sits alongside Approvals & Holdouts -->
+          <div class="subnav-card active">
+            <div class="sc-icon"><span class="material-icons">data_object</span></div>
+            <div class="sc-body">
+              <div class="sc-title">Global Parameters</div>
+              <div class="sc-sub">Shared values reused across flags</div>
+            </div>
+            <span class="material-icons sc-arrow">chevron_right</span>
+          </div>
+        </nav>
+
+        <section class="panel" id="gpPanel"><!-- rendered by app.js --></section>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────── Toast ─────── -->
+  <div class="toast hidden" id="toast">
+    <span class="material-icons">check_circle</span>
+    <span id="toastText">Saved.</span>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

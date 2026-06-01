@@ -1,5 +1,12 @@
 # Statsig Layers and Referencing Explained
 
+> **Key implications for Global Parameters (read first):**
+> - **Referencing an experiment from a parameter** is what turns a static value into a no-code A/B test: the developer codes the parameter read *once*, and a PM can later attach an experiment without new code. This is the strategic payoff of the whole feature (the Path 2 vision).
+> - **Statsig's "Layers" exist only to keep experiments on related parameters mutually exclusive.** Kameleoon already has **Mutually Exclusive Groups**, which give the identical guarantee. So we **do not build a Layer concept** — we reuse a workflow PMs already know. That's a differentiator, not a gap.
+> - **Where this lands in our docs:** [spec.md](spec.md) places the override hierarchy and experiment-exclusivity (via Mutually Exclusive Groups) under *Future direction (Path 2)* — it is the direction the current build leads toward, not yet implemented; [analysis.md](analysis.md) §7 lists it as differentiation.
+
+---
+
 ## 1. Why even reference the experiment? 
 
 You asked a great question: *If the parameter already has a value, why bother referencing an experiment at all? Is it just for "taking control" and vision?*

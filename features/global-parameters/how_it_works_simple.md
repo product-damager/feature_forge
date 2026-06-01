@@ -1,5 +1,12 @@
 # How It Works: Global Parameters (A Simple Guide)
 
+> **The 30-second version (for execs).**
+> Today, reusable values (a discount, a banner text, a config) are typed *inside* each Feature Flag — so changing one means editing many flags by hand, and nobody can see where a value is used.
+> **Global Parameters** are a central place to define a value once and link it everywhere. **Feature Flags turn code on/off, Experiments compare variations, Global Parameters carry the reusable values both can read** — and an Experiment can *temporarily take control* of a parameter to A/B test it, with results attributed cleanly.
+> **The golden rule: parameters don't run tests; experiments do.** That keeps analytics honest. Benefit: define once, change once, full traceability, and (next) no-code experiments on shared values — with a simpler mental model than Statsig and no new "Layer" concept (we reuse Mutually Exclusive Groups).
+
+---
+
 ## The Analogy: The Restaurant Promo
 
 Imagine you run a restaurant chain and want to launch a "Summer Promo" where all desserts have a **20% discount**. You need this promo to appear on your Website, your iOS App, and your Android App.
@@ -39,7 +46,7 @@ If you want to change the discount to 25%, you just change it **once** in the ce
 
 To make Kameleoon even better than Statsig for PMs, we could build a **Global Parameter Hub**. Here is how you would use it:
 
-1. **The Hub:** We give you a new tab in the dashboard called "Global Parameters" (your central cabinet).
+1. **The Hub:** We give you a new **Global Parameters** area inside **Settings** (your central cabinet), alongside *Approvals settings* and *Holdouts*.
 2. **Create Once:** You go there and create a variable: `BlackFriday_Discount = 30%`.
 3. **Link It Up:** Whenever you are building a Feature Flag, instead of manually typing a variable value from scratch, you click a new button called **"Link to Global Parameter"** and pick `BlackFriday_Discount`.
 4. **Update Everywhere:** If you ever change the global value to 40% in the Hub, *every single feature flag* linked to it updates automatically.
@@ -52,6 +59,8 @@ To make Kameleoon even better than Statsig for PMs, we could build a **Global Pa
 ---
 
 ### 🔬 How Does This Connect to Experiments?
+
+> **Scope note.** This section is the *conceptual / future* picture (Path 2). The current prototypes implement the simpler half: a parameter is a reusable value (Direction 1) whose source can be a static value or a Feature Flag variable (Direction 2), and changing it propagates to every consuming flag. Experiment control of a parameter, described below, is the direction this leads toward — not yet built.
 
 A huge question for PMs is: *“If I use a Global Parameter, how do I track A/B test results?”*
 

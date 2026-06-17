@@ -474,8 +474,14 @@ h2 { font-size: 16px; font-weight: 600; }
 .vb-list li { font-size: 12px; color: var(--text-secondary); margin-bottom: 3px; line-height: 1.4; }
 
 /* ── Targeting group card ─────────────────────────────────────────── */
+/* One shared "group" colour — the frame says "this is a group container",
+   not "this group is special". Group identity itself comes from the name + chip. */
 .tgroup {
-  border: 1px solid var(--border-color);
+  --grp: #4f46e5;
+  --grp-soft: #eef1ff;
+  --grp-border: #bcc1f5;
+  --grp-rail: #d8dcfa;
+  border: 1.5px solid var(--grp-border);
   border-radius: var(--radius);
   background: #fff;
   overflow: hidden;
@@ -484,12 +490,18 @@ h2 { font-size: 16px; font-weight: 600; }
 .tgroup-head {
   display: flex; align-items: center; gap: 8px;
   padding: 11px 13px;
-  background: #fbfbfd;
-  border-bottom: 1px solid var(--border-soft);
+  background: var(--grp-soft);
+  border-bottom: 1.5px solid var(--grp-border);
   cursor: pointer;
 }
 .tgroup.collapsed .tgroup-head { border-bottom: none; }
 .tgroup-chev { font-size: 18px; color: var(--text-muted); }
+.tg-index {
+  width: 20px; height: 20px; border-radius: 5px; flex-shrink: 0;
+  background: var(--grp, var(--text-muted)); color: #fff;
+  font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
 .tgroup-name {
   background: transparent; border: 1px solid transparent;
   font-family: inherit; font-size: 13px; font-weight: 600;
@@ -625,13 +637,19 @@ h2 { font-size: 16px; font-weight: 600; }
 .inline-note .material-icons { font-size: 15px; margin-top: 1px; flex-shrink: 0; }
 
 /* ── Segment / Trigger definition blocks (radio-based) ────────────── */
-.def-block { display: flex; flex-direction: column; gap: 7px; }
-.def-block + .def-block {
-  margin-top: 4px; padding-top: 13px;
-  border-top: 1px solid var(--border-soft);
+/* Segment & Trigger read as nested sub-sections inside the group — a soft
+   rail in the group colour signals the hierarchy below the group frame. */
+.def-block {
+  display: flex; flex-direction: column; gap: 7px;
+  padding-left: 12px;
+  border-left: 2px solid var(--grp-rail, var(--border-soft));
 }
+.def-block + .def-block { margin-top: 14px; }
 .def-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.def-title { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+.def-title {
+  font-size: 11px; font-weight: 700; color: var(--grp, var(--text-primary));
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
 .def-link { font-size: 12px; color: var(--primary-blue); }
 .def-q { font-size: 12px; color: var(--text-secondary); margin-bottom: 1px; }
 

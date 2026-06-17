@@ -352,9 +352,10 @@ function groupHtml(rule, group, idx) {
     : `<span class="cap-chip no-ai" title="This group uses standard targeting conditions. That's expected — it's the comparison baseline.">No AI targeting</span>`;
 
   return `
-    <div class="tgroup ${hasAI ? 'has-ai' : ''} ${collapsed ? 'collapsed' : ''}" data-group="${group.id}">
+    <div class="tgroup ${collapsed ? 'collapsed' : ''}" data-group="${group.id}">
       <div class="tgroup-head" data-toggle="${group.id}">
         <span class="material-icons tgroup-chev">${collapsed ? 'chevron_right' : 'expand_more'}</span>
+        <span class="tg-index">${idx + 1}</span>
         <input class="tgroup-name" data-rename="${group.id}" value="${esc(group.name)}" onclick="event.stopPropagation()">
         ${chip}
         <span class="tgroup-summary">${esc(segSummary(group))}</span>
@@ -373,7 +374,7 @@ function segmentBlockHtml(rule, g) {
   return `
     <div class="def-block">
       <div class="def-head">
-        <span class="def-title">Segments</span>
+        <span class="def-title">Segment</span>
         <span class="def-link">${esc(segSummary(g))}</span>
       </div>
       <div class="def-q">Who should see the personalization?</div>
@@ -394,7 +395,7 @@ function segmentBlockHtml(rule, g) {
         <span>Specific visitors</span>
         <span class="material-icons rr-help">help_outline</span>
       </label>
-      <div class="radio-sub"><span class="inactive-note">Quick builder — configured with its own logic (inactive in this prototype).</span></div>
+      <div class="radio-sub"><span class="inactive-note">Quick builder (inactive for this prototype).</span></div>
     </div>`;
 }
 
@@ -405,7 +406,7 @@ function triggerBlockHtml(rule, g) {
   return `
     <div class="def-block">
       <div class="def-head">
-        <span class="def-title">Triggers</span>
+        <span class="def-title">Trigger</span>
         <span class="def-link">${esc(trgSummary(g))}</span>
       </div>
       <div class="def-q">When should a visitor be exposed to your personalization?</div>
@@ -445,7 +446,7 @@ function triggerBlockHtml(rule, g) {
         <span>When a combination of triggers occurs</span>
         <span class="material-icons rr-help">help_outline</span>
       </label>
-      <div class="radio-sub"><span class="inactive-note">Quick builder — configured with its own logic (inactive in this prototype).</span></div>
+      <div class="radio-sub"><span class="inactive-note">Quick builder (inactive for this prototype).</span></div>
     </div>`;
 }
 

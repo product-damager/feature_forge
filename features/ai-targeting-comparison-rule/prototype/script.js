@@ -59,6 +59,7 @@ const state = {
       name: 'AI vs returning-visitor targeting',
       status: 'draft',
       content: 'Content 1',
+      exposure: 100,
       groups: [
         newGroup('Group 1',
           { mode: 'specific', id: 's2' },                                   // AI segment
@@ -106,6 +107,19 @@ const els = {
 
 function esc(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function clamp(v, min, max) {
+  let n = parseInt(v, 10); if (isNaN(n)) n = min;
+  return Math.max(min, Math.min(max, n));
+}
+
+function paintSlider(slider) {
+  if (!slider) return;
+  const min = +slider.min || 0;
+  const max = +slider.max || 100;
+  const pct = ((+slider.value - min) / (max - min)) * 100;
+  slider.style.backgroundSize = `${pct}% 100%`;
 }
 
 // ----------------------------------------------------------------------------
@@ -306,20 +320,27 @@ function aiFormHtml(rule) {
       </div>
     </div>
 
-    <!-- CONTENT -->
+    <!-- CONTENT & EXPOSURE -->
     <div class="config-section expanded" data-section="content">
       <div class="section-head">
         <div class="section-head-left">
           <span class="section-title">Content</span>
-          <span class="section-meta accent">${esc(rule.content)}</span>
+          <span class="section-meta accent" id="contentMeta">${esc(rule.content)} · ${rule.exposure}%</span>
         </div>
         <span class="material-icons section-chev">expand_more</span>
       </div>
       <div class="section-body">
-        <p class="helper-text">Select the content to display to your visitors.</p>
+        <p class="helper-text">Select the content to display to your exposed visitors.</p>
         <select class="input-field select-field" id="contentSelect">
           ${CONTENTS.map(c => `<option ${c === rule.content ? 'selected' : ''}>${esc(c)}</option>`).join('')}
         </select>
+        <div class="exposure-slider-block">
+          <label class="field-label">Targeted visitors exposed (%)</label>
+          <div class="slider-row">
+            <input type="range" min="0" max="100" value="${rule.exposure}" class="slider" id="expSlider">
+            <input type="number" min="0" max="100" value="${rule.exposure}" class="num-input" id="expNum">
+          </div>
+        </div>
       </div>
     </div>
 
@@ -510,6 +531,29 @@ function overlapHtml() {
 function wireAIForm(rule) {
   $('#ruleName').addEventListener('input', (e) => { rule.name = e.target.value; markDirty(); });
   $('#contentSelect').addEventListener('change', (e) => { rule.content = e.target.value; rerender(); markDirty(); });
+
+  // Exposure slider <-> number input (no rerender — keep slider responsive)
+  const expSlider = $('#expSlider');
+  const expNum = $('#expNum');
+  paintSlider(expSlider);
+  const updateContentMeta = () => {
+    const m = $('#contentMeta');
+    if (m) m.textContent = `${rule.content} · ${rule.exposure}%`;
+  };
+  expSlider.addEventListener('input', () => {
+    rule.exposure = +expSlider.value;
+    expNum.value = rule.exposure;
+    paintSlider(expSlider);
+    updateContentMeta();
+    markDirty();
+  });
+  expNum.addEventListener('input', () => {
+    rule.exposure = clamp(expNum.value, 0, 100);
+    expSlider.value = rule.exposure;
+    paintSlider(expSlider);
+    updateContentMeta();
+    markDirty();
+  });
 
   const ot = $('#overlapToggle');
   ot.addEventListener('click', () => {
@@ -719,6 +763,7 @@ function createRule(type) {
     return {
       id, ruleId, type, name: 'New AI Targeting Comparison rule', status: 'draft',
       content: CONTENTS[0],
+      exposure: 100,
       groups: [
         newGroup('Group 1', { mode: 'specific', id: 's2' }),   // defaults to an AI segment
         newGroup('Group 2', { mode: 'all', id: null })

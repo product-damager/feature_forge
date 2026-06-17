@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Kameleoon — AI Targeting Comparison rule (Personalization prototype)</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+
+<body>
+
+  <!-- Top Nav -->
+  <div class="top-nav">
+    <div class="left-nav">
+      <div class="logo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#1C1C1C" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="8" cy="8" r="4" />
+          <circle cx="16" cy="16" r="4" />
+          <circle cx="16" cy="8" r="4" />
+          <circle cx="8" cy="16" r="4" />
+        </svg>
+        <span class="material-icons logo-chev">expand_more</span>
+      </div>
+      <div class="flag-title">My new personalization</div>
+      <span class="material-icons help-icon">help_outline</span>
+      <span class="status-pill" id="onlineStatus">
+        <span class="status-dot"></span>
+        <span id="onlineStatusText">1 out of 2 rules online</span>
+      </span>
+      <span class="saved-text" id="savedText">Saved 17/06/2026</span>
+    </div>
+    <div class="right-nav">
+      <button class="btn-simulate">
+        <span class="material-icons">videocam</span>
+        SIMULATE
+      </button>
+      <span class="material-icons more-vert">more_vert</span>
+      <button class="save-btn" id="saveBtn" disabled>
+        <span class="save-btn-main">SAVE</span>
+        <span class="save-btn-sub hidden" id="saveBtnSub">
+          <span class="material-icons">error_outline</span>
+          <span id="saveBtnCount">0 Unsaved changes</span>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <div class="app-body">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="nav-item">
+        <span class="material-icons">science</span>
+        <div class="nav-text">
+          <div class="nav-title">Content</div>
+          <div class="nav-sub">Define content of your personalization</div>
+        </div>
+      </div>
+      <div class="nav-item active">
+        <span class="material-icons">my_location</span>
+        <div class="nav-text">
+          <div class="nav-title">Targeting rules</div>
+          <div class="nav-sub">Currently editing</div>
+        </div>
+        <span class="material-icons nav-chev">chevron_right</span>
+      </div>
+      <div class="nav-item">
+        <span class="material-icons">track_changes</span>
+        <div class="nav-text">
+          <div class="nav-title">Goals</div>
+          <div class="nav-sub">Select the indicators of success</div>
+        </div>
+      </div>
+      <div class="nav-item">
+        <span class="material-icons">extension</span>
+        <div class="nav-text">
+          <div class="nav-title">Integrations</div>
+          <div class="nav-sub">Add tools to follow visitors activity</div>
+        </div>
+      </div>
+
+      <div class="nav-divider"></div>
+
+      <div class="nav-section-title">
+        <span class="material-icons">settings</span>
+        <span>General Settings</span>
+      </div>
+      <div class="nav-sub-item">Main information</div>
+      <div class="nav-sub-item">Personalization custom script</div>
+      <div class="nav-sub-item">Advanced settings</div>
+    </div>
+
+    <!-- Main Canvas -->
+    <div class="main-canvas">
+
+      <div class="page-header">
+        <div>
+          <h1>Targeting rules</h1>
+          <p class="page-sub">Visitors are targeted based on the first rule they match, from top to bottom.</p>
+        </div>
+        <button class="btn-add" id="addRuleBtn">
+          <span class="material-icons">add</span>
+          ADD RULE
+        </button>
+      </div>
+
+      <div class="rules-list" id="rulesList"><!-- rendered by JS --></div>
+
+    </div>
+
+    <!-- Right Panel -->
+    <div class="right-panel" id="rightPanel">
+
+      <!-- Empty state -->
+      <div id="emptyView" class="panel-empty">
+        <span class="material-icons empty-icon">tune</span>
+        <p>Select a rule to configure, or click <strong>+ Add rule</strong>.</p>
+      </div>
+
+      <!-- Type selector (shown only when adding a new rule) -->
+      <div id="typeSelectorView" class="hidden">
+        <div class="panel-header">
+          <div class="panel-header-left">
+            <h2>Add a rule</h2>
+            <span class="step-pill">Step 1 of 2</span>
+          </div>
+          <span class="material-icons close-panel" id="cancelTypeSelect">close</span>
+        </div>
+        <p class="panel-sub">Pick a rule type. The configuration form opens after you choose.</p>
+
+        <div class="type-card-list">
+          <button class="type-card" data-type="targeting">
+            <span class="tc-icon"><span class="material-icons">my_location</span></span>
+            <span class="tc-body">
+              <span class="tc-title">Targeting rule</span>
+              <span class="tc-desc">Serve one content to a defined audience.</span>
+              <span class="tc-meta">Single content · exposure-based</span>
+            </span>
+            <span class="material-icons tc-arrow">chevron_right</span>
+          </button>
+
+          <button class="type-card type-card-experiment" data-type="experiment">
+            <span class="tc-icon tc-icon-purple"><span class="material-icons">science</span></span>
+            <span class="tc-body">
+              <span class="tc-title">Experiment rule</span>
+              <span class="tc-desc">Compare multiple contents under the same targeting.</span>
+              <span class="tc-meta">Multiple contents · manual or bandit allocation</span>
+            </span>
+            <span class="material-icons tc-arrow">chevron_right</span>
+          </button>
+
+          <button class="type-card type-card-ai" data-type="ai-comparison">
+            <span class="tc-icon tc-icon-ai"><span class="material-icons">compare_arrows</span></span>
+            <span class="tc-body">
+              <span class="tc-title">AI Targeting Comparison
+                <span class="new-badge">NEW</span>
+              </span>
+              <span class="tc-desc">Compare AI targeting against non-AI targeting on the same content.</span>
+              <span class="tc-meta">Two targeting groups · one shared content · one goal</span>
+            </span>
+            <span class="material-icons tc-arrow">chevron_right</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Rule configuration (body rendered by JS) -->
+      <div id="ruleForm" class="hidden">
+        <div class="panel-header">
+          <div class="panel-header-left">
+            <h2 id="panelTitle">Configure the rule</h2>
+            <span class="status-pill panel-status" id="panelStatus">
+              <span class="status-dot"></span>
+              <span id="panelStatusText">Draft</span>
+            </span>
+            <span class="id-text" id="panelId">233770 <span class="material-icons copy-icon">content_copy</span></span>
+          </div>
+          <span class="rule-type-pill" id="ruleTypePill">
+            <span class="material-icons" id="ruleTypeIcon">compare_arrows</span>
+            <span id="ruleTypeLabel">AI Comparison</span>
+          </span>
+        </div>
+
+        <div id="formBody"><!-- rendered by JS --></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

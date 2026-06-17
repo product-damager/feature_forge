@@ -56,6 +56,12 @@ Surfaces touched:
 - Add a rule-type branch: evaluate two group definitions, resolve assignment, serve the single content. No change to queue ordering or "first match wins."
 - AI Targeting lives inside a segment: confirm "is this segment AI-driven?" is a queryable segment property (drives the capability chip, the picker badge, and the both-groups guardrail), and that the segment evaluator already invokes the AI model on the personalization goal.
 
+### AI decision availability at evaluation time (first-class open decision)
+Deterministic overlap resolution requires **both** group memberships to be known when the rule fires. AI-based segments are often reconstructed after the fact (cold start, first impression, locally stored signal), so the AI verdict may not exist at decision time. If it cannot be evaluated reliably in-line, the whole deterministic-overlap model weakens — **validate this first.** Decisions to make:
+- **Unscored visitor:** if no AI verdict yet, the visitor does not match the AI group on that impression (flows to the manual group if matched, else to the next rule). Confirm this does not silently starve the AI group.
+- **Late scoring vs stable assignment:** if the verdict arrives on a later visit and would change membership, re-bucketing breaks the stable-assignment guarantee; never updating biases the AI group toward already-warm visitors. Recommended: fix assignment at the first qualifying evaluation; a visitor who only later becomes AI-eligible enters the AI group from that point, and reporting notes the cohort effect.
+- **Cold-start cohort bias:** first-time visitors may be under-represented in the AI group; flag for the results methodology so it is not misread as "AI converts worse." See `methodology-and-research.md` §4.
+
 ### SDK / payload
 - Payload gains `groups[2]` (Segment + Trigger definitions), `content`, `aiGroupId`. Standard-rule payloads are unchanged.
 - Overlap resolution is a client-side hash (constant time) — no extra service call on the hot path.

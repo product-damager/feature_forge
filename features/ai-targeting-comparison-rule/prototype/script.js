@@ -13,14 +13,42 @@
 const CONTENTS = ['Content 1', 'Hero banner', 'Pricing callout', 'Free-shipping bar'];
 
 // Segment library — some segments contain an AI Targeting condition (ai: true).
+// AI segments carry a learning state from AI Predictive targeting (see related
+// feature "AI predictive visibility", project #38057). We only consume it here
+// as a read-only badge: learning | no-data | weak | moderate | good.
 const SEGMENTS = [
   { id: 's1', name: 'Returning visitors', ai: false },
-  { id: 's2', name: 'High purchase intent', ai: true },
+  { id: 's2', name: 'High purchase intent', ai: true, aiState: 'good' },
   { id: 's3', name: 'Loyalty — Gold tier', ai: false },
-  { id: 's4', name: 'Likely to churn', ai: true },
+  { id: 's4', name: 'Likely to churn', ai: true, aiState: 'learning' },
   { id: 's5', name: 'Cart abandoners', ai: false },
-  { id: 's6', name: 'Mobile — France', ai: false }
+  { id: 's6', name: 'Mobile — France', ai: false },
+  { id: 's7', name: 'Bargain hunters', ai: true, aiState: 'moderate' }
 ];
+
+// AI learning-state badge taxonomy (end result of AI Predictive training).
+const AI_STATES = {
+  learning: { label: 'Learning' },
+  'no-data': { label: 'No data' },
+  weak: { label: 'Weak' },
+  moderate: { label: 'Moderate' },
+  good: { label: 'Good' }
+};
+function aiStateBadge(state) {
+  if (!AI_STATES[state]) return '';
+  return `<span class="ai-state ${state}"><span class="material-icons">auto_awesome</span>${AI_STATES[state].label}</span>`;
+}
+// Reliability note shown inside the AI group while the data is not yet dependable.
+function aiNoteHtml(seg) {
+  if (!seg || !seg.ai) return '';
+  if (seg.aiState === 'learning') {
+    return `<div class="inline-note warn"><span class="material-icons">hourglass_top</span><div>This AI segment is still training, so its targeting — and this comparison — may not be reliable until it finishes learning.</div></div>`;
+  }
+  if (seg.aiState === 'no-data' || seg.aiState === 'weak') {
+    return `<div class="inline-note warn"><span class="material-icons">warning_amber</span><div>This AI segment has limited data so far. The comparison will become more reliable as it gathers more.</div></div>`;
+  }
+  return '';
+}
 // Trigger library — no AI here.
 const TRIGGERS = [
   { id: 't1', name: 'Pricing page reached' },
@@ -367,9 +395,10 @@ function optionalSection(title) {
 
 function groupHtml(rule, group, idx) {
   const hasAI = groupHasAI(group);
+  const aiSeg = hasAI ? segOf(group) : null;
   const collapsed = !!state.collapsedGroups[group.id];
   const chip = hasAI
-    ? `<span class="cap-chip ai" title="This group uses AI Targeting to decide who qualifies."><span class="material-icons">auto_awesome</span> AI Targeting</span>`
+    ? `<span class="cap-chip ai" title="This group uses AI Targeting to decide who qualifies."><span class="material-icons">auto_awesome</span> AI Targeting</span>${aiSeg ? aiStateBadge(aiSeg.aiState) : ''}`
     : `<span class="cap-chip no-ai" title="This group uses standard targeting conditions. That's expected — it's the comparison baseline.">No AI targeting</span>`;
 
   return `
@@ -382,6 +411,7 @@ function groupHtml(rule, group, idx) {
         <span class="tgroup-summary">${esc(segSummary(group))}</span>
       </div>
       <div class="tgroup-body">
+        ${aiNoteHtml(aiSeg)}
         ${segmentBlockHtml(rule, group)}
         ${triggerBlockHtml(rule, group)}
       </div>
@@ -477,7 +507,7 @@ function ksSelectHtml(kind, g, disableAI) {
   const curId = kind === 'seg' ? g.seg.id : g.trg.id;
   const cur = opts.find(o => o.id === curId);
   const label = cur
-    ? `<span class="ks-select-label">${esc(cur.name)}${cur.ai ? ` <span class="seg-ai-badge">AI</span>` : ''}</span>`
+    ? `<span class="ks-select-label">${esc(cur.name)}${cur.ai ? ' ' + aiStateBadge(cur.aiState) : ''}</span>`
     : `<span class="ks-select-label"><span class="ph">${kind === 'seg' ? 'Select a segment…' : 'Select a trigger…'}</span></span>`;
 
   const rows = opts.map(o => {
@@ -486,7 +516,7 @@ function ksSelectHtml(kind, g, disableAI) {
       <button class="ks-opt ${o.id === curId ? 'selected' : ''} ${disabled ? 'disabled' : ''}"
               data-ks-opt="${o.id}" data-kind="${kind}" data-group="${g.id}" ${disabled ? 'data-disabled="1"' : ''}>
         <span>${esc(o.name)}</span>
-        ${o.ai ? `<span class="seg-ai-badge">AI</span>` : ''}
+        ${o.ai ? aiStateBadge(o.aiState) : ''}
       </button>`;
   }).join('');
 

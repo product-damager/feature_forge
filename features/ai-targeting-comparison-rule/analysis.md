@@ -143,8 +143,13 @@ This rule is the Experiment rule's mirror image: the Experiment rule **varies co
 
 ### Risky assumptions
 - Deterministic per-visitor bucketing can be applied at the *overlap subset* rather than the whole audience. Needs engineering confirmation (see engineering-brief.md).
+- The AI targeting verdict is available **at decision time**. AI segments are often reconstructed after the fact, so this is the assumption to validate first — if it fails, deterministic overlap resolution weakens. See `methodology-and-research.md` §4 and engineering-brief.md.
 - One goal is enough to both measure conversion and train AI Targeting. This is true by construction of AI Targeting (it learns on one goal), but the UI must make the shared meaning explicit.
 - Overlap can be *estimated* at configure time for a diagnostic indicator. If not, the indicator degrades gracefully to "overlap possible" rather than a number.
+
+### Statistical interpretation (see `methodology-and-research.md`)
+- Because overlap is split 50/50, the measured difference is driven by the **exclusive** populations — where AI and manual targeting *disagree*. A group's conversion rate is a comparison value, not the pure segment's rate, and power depends on the exclusive-population sizes, not total matched traffic — so high overlap means low discriminating power.
+- This design is **more data-correct than the competitor norm**: "Compare Segments" reporting in other tools double-counts overlapping visitors; deduplicating overlap here removes that contamination.
 
 ### Validation priorities
 1. Engineering: can overlap be measured as a diagnostic, and can deterministic assignment be scoped to the overlap subset only (not the whole population)?

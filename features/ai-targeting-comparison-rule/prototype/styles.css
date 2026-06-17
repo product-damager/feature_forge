@@ -702,11 +702,18 @@ h2 { font-size: 16px; font-weight: 600; }
 .ks-opt.selected { background: #eef0ff; }
 .ks-opt.disabled { color: var(--text-muted); cursor: not-allowed; }
 .ks-opt.disabled:hover { background: transparent; }
-.seg-ai-badge {
-  font-size: 9px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
-  background: var(--ai-soft); color: var(--ai-accent); border: 1px solid #d9c9ff;
-  padding: 1px 6px; border-radius: 8px; flex-shrink: 0;
+/* AI learning-state badge (from AI Predictive visibility, #38057) */
+.ai-state {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.02em;
+  padding: 2px 8px; border-radius: 10px; flex-shrink: 0;
 }
+.ai-state .material-icons { font-size: 11px; }
+.ai-state.learning { background: var(--ai-soft); color: var(--ai-accent); }
+.ai-state.no-data { background: #fbeaea; color: #9a1f1f; }
+.ai-state.weak { background: #fdecec; color: var(--danger-red); }
+.ai-state.moderate { background: #fff3e0; color: var(--warn-amber); }
+.ai-state.good { background: var(--success-bg); color: #007a52; }
 .ks-menu-note {
   font-size: 10.5px; color: var(--text-muted);
   padding: 6px 9px 4px; border-top: 1px solid var(--border-soft);

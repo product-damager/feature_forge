@@ -25,19 +25,18 @@ Introduce a new rule type in Personalizations: **Experiment rule**.
   - **Manual allocation** — fixed percentages per content (must sum to 100%).
   - **Multi-armed bandit** — algorithm reallocates traffic toward best-performing content based on the inherited primary goal.
   - **Contextual bandit** — same as MAB plus context attributes (segments, traits) used by the model.
-- Inherited goals — read-only in the rule, configured at personalization level.
 - All standard rule features preserved: targeting, exposure %, schedule, status.
 
 ### What changes in the product
 
 - `Add a rule` opens the right panel on a **rule-type selection step**, not directly on a configuration form.
 - A new rule renderer in the rule queue: experiment rules show a content stack with allocation strip and an `EXPERIMENT` tag.
-- A new SDK payload shape for multi-content rules (engineering brief covers this).
+- A new schema for multi-content rules.
 
 ### What does NOT change
 
 - Personalization goals stay at the personalization level.
-- Rule queue semantics (allocation-based exposure, non-strictly-sequential evaluation) are preserved.
+- Rule queue semantics are preserved.
 - Existing single-content rules continue to work without migration.
 
 ---
@@ -51,12 +50,12 @@ User clicks **+ Add a rule** in a Personalization.
 ### Step 1 — Pick rule type (right panel)
 
 Right panel shows two cards:
-- **Targeted delivery** — current single-content rule.
+- **Targeting rule** — current single-content rule.
 - **Experiment rule** — new multi-content rule with allocation logic.
 
 Clicking a card commits the rule type and opens the matching configuration form. The rule type is not changed afterwards (changing it would invalidate the content list and allocation).
 
-### Step 2a — Targeted delivery (unchanged)
+### Step 2a — Targeting rule (unchanged)
 
 Existing form. Out of scope for this feature.
 

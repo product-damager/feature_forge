@@ -6,7 +6,7 @@ Introduce a new rule type in Personalizations: AI Targeting Audience test rule.
 
 This rule type allows teams to compare AI-driven targeting against non-AI targeting inside a single personalization rule, on the same content, while preserving the existing Personalizations model, including rule queue behavior, personalization-level goals, and standard rule capabilities.
 
-The feature is intended to close the current gap where teams cannot natively tell whether AI Targeting performs better than the targeting they would build by hand. Today they improvise by cloning rules, which double-counts visitors who match both definitions and produces no clean read.
+The feature is intended to close the current gap where teams cannot natively tell whether AI Targeting performs better than the targeting they would build by hand. Today they improvise by cloning rules into the queue — where the first rule captures every visitor who qualifies for both definitions and the second rule only ever sees the remainder — so the exposure is skewed and there is no clean, single read.
 
 ## **Problem**
 
@@ -14,7 +14,7 @@ Today, AI Targeting can be switched on for a personalization rule, but there is 
 
 In the current model, users have two imperfect options:
 
-* Duplicate rules — one with AI Targeting, one without — and compare them manually, which either double-counts visitors who qualify for both or skews the exposure to the 1st defined rule and gives no clean, single read.
+* Duplicate rules — one with AI Targeting, one without — and compare them manually. Because the queue matches top-to-bottom, the first rule captures every visitor who qualifies for both definitions and the second rule only ever sees the remainder, so the exposure is skewed and gives no clean, single read.
 * Move the use case to Web Experiments or different Personalizations, which also creates exposure and result issues.
 
 As a result, users cannot answer a simple question — "is AI targeting actually better than my manual targeting for this experience?" — without leaving the rule editor or building a flawed comparison.
@@ -27,17 +27,17 @@ Allow users to compare AI and non-AI targeting directly inside Personalizations,
 
 Add AI Targeting Comparison rule as a new rule type available from the + Add a rule entry point in a Personalization.
 
-An AI Targeting Comparison rule groups exactly two targeting definitions under a single rule. One definition includes AI Targeting and the other does not, both point to the same content, and visitors who qualify for both are assigned to exactly one of them so the comparison stays clean.
+An AI Targeting Comparison rule groups exactly two segments to compare under a single shared trigger, pointing to the same content. One segment includes AI Targeting and the other does not. Both segments are evaluated against the full incoming population under the same trigger, so each side reflects its complete targeting definition. Visitors who qualify for both segments are counted in both groups — double-counting is accepted as intended behaviour — and results are read as a head-to-head comparison of two targeting definitions, not as mutually exclusive populations.
 
 ## **Capabilities**
 
 An AI Targeting Comparison rule supports:
 
-* Exactly two targeting groups inside one rule.
-* Each group defined with the familiar Segment + Trigger model already used by Targeting rules:
+* Exactly two segments to compare inside one rule, evaluated under a single shared trigger.
+* The two segments defined with the familiar Segment model already used by Targeting rules:
   * Segment — All Visitors, Specific segment, or Specific visitors.
-  * Trigger — When a web page is reached, When a specific trigger occurs, or When a combination of triggers occurs.
-* AI Targeting expressed inside a segment. A group includes AI Targeting when its Specific segment contains an AI targeting condition or there is a condition in the Specific visitors. Exactly one group must include AI Targeting; the other must not.
+* One shared Trigger for the whole rule, following the standard Targeting rules model — When a web page is reached, When a specific trigger occurs, or When a combination of triggers occurs. The trigger is the same for both sides, so the only thing that differs between the two groups is the segment definition.
+* AI Targeting expressed inside a segment. A group includes AI Targeting when its Specific segment contains an AI targeting condition or there is a condition in the Specific visitors. Exactly one segment must include AI Targeting; the other must not.
 * AI learning-state visibility. AI segments surface their training state as a read-only badge — Learning, No data, Weak, Moderate, or Good — so the user can see whether the AI group already has reliable data before relying on the comparison. The state comes from AI Predictive targeting; this rule only displays it.
 * One shared content for the whole rule, with an exposure percentage.
 * Standard rule behaviors already available for Targeting rules in Personalizations:
@@ -45,7 +45,7 @@ An AI Targeting Comparison rule supports:
   * Display settings
   * Rollback conditions
   * Status
-* Overlap handling — visitors who qualify for both groups are assigned to exactly one group by deterministic per-visitor assignment.
+* Accepted overlap. Visitors who qualify for both segments are counted in both groups; the rule does not split, deduplicate, or reassign them, and the editor does not display an overlap note or indicator.
 
 ## **Out of Scope**
 
@@ -91,8 +91,8 @@ If the user selects the AI Targeting Comparison rule, the comparison configurati
 The form contains the following sections, in order:
 
 1. Rule name + status
-2. Targeting (Group 1, Group 2, overlap note)
-3. Exposure (content selector + exposure)
+2. Targeting (two segments to compare + one shared trigger)
+3. Content (content selector + exposure)
 4. Scheduling
 5. Display settings
 6. Rollback conditions
@@ -107,25 +107,28 @@ The panel starts with the rule name field and the current rule status, following
 
 This section is the main feature-specific part of the form.
 
-It replaces the separate top-level Segments and Triggers blocks with a single Targeting section that contains exactly two group containers.
+It replaces the separate top-level Segments and Triggers blocks with a single Targeting section built from two parts: the two segments being compared, and one shared trigger. This mirrors how the two definitions differ only by segment — the trigger is held constant, the same way an Experiment rule holds targeting constant and varies the content.
 
-Each group is a framed container with:
+#### Segments to compare
+
+Two framed segment containers, one per side of the comparison. Each container has:
 
 * An editable group name (defaulting to Group 1 / Group 2).
 * A capability badge — a purple "AI Targeting" badge when the group's segment includes an AI targeting condition, or a neutral "No AI targeting" chip otherwise. The chip is a statement of fact, not a warning; the non-AI group is the comparison baseline. When the group is the AI group, its AI learning-state badge (Learning / No data / Weak / Moderate / Good) is shown next to it.
-* The familiar Segment + Trigger definition, presented as two nested sub-sections inside the group:
+* The familiar Segment definition, identical to the segment block in standard Targeting rules:
+  * All Visitors
+  * Specific segment — opens a segment picker populated with the user's segments. Segments that contain an AI targeting condition show their AI learning-state badge (Learning / No data / Weak / Moderate / Good), so the user can pick an AI segment that already has reliable data. Choosing one makes this the AI group.
+  * Specific visitors — present as a quick builder.
 
-Segment
+#### Trigger (shared)
 
-* All Visitors
-* Specific segment — opens a segment picker populated with the user's segments. Segments that contain an AI targeting condition show their AI learning-state badge (Learning / No data / Weak / Moderate / Good), so the user can pick an AI segment that already has reliable data. Choosing one makes this the AI group.
-* Specific visitors — present as a quick builder.
-
-Trigger
+A single Trigger definition for the whole rule, placed below the two segments and identical to the trigger block in standard Targeting rules:
 
 * When a web page is reached — with its own hierarchy: a specific page (URL input), the URLs containing a specific fragment (fragment input), or the entire site (with a caution tooltip).
 * When a specific trigger occurs — opens a trigger picker populated with the user's triggers.
 * When a combination of triggers occurs — present as a quick builder.
+
+The trigger defines when both segments are evaluated and when the shared content is shown. Because it is the same for both sides, the only variable in the comparison is the segment definition.
 
 AI guardrail
 
@@ -135,11 +138,9 @@ AI learning-state reliability note
 
 When the AI group's segment is still Learning (or has No data / Weak data), the group shows an inline note that its targeting — and therefore the comparison — may not be reliable yet, and becomes more trustworthy as the segment reaches Moderate or Good.
 
-Overlap note
+No overlap note
 
-The section includes an overlap explanation: a short always-visible sentence, an expandable helper describing the deterministic assignment, and a diagnostic overlap indicator.
-
-The overlap indicator can also be a discriminating-power signal, not just an FYI. Because overlapping visitors are split evenly between the groups, the difference between the groups is driven by the parts where the two groups' definitions disagree. A high overlap therefore means a small differentiating population and a comparison that may be inconclusive.
+The editor does not display an overlap note, helper, or indicator. Overlap between the two segments is accepted, not resolved, and measuring it reliably at configuration time is not assumed to be feasible. Where overlap can be computed at all, it is surfaced only in the results view as an interpretation aid — never as a configuration-time control.
 
 ### 3. Content
 
@@ -166,13 +167,13 @@ An AI Targeting Comparison rule occupies a single slot in the personalization ru
 
 The engine behavior is as follows:
 
-1. Both targeting groups are evaluated against the full incoming population.
-2. If the visitor matches neither group, the rule does not apply and the visitor continues to the next rule in the personalization evaluation.
-3. If the visitor matches exactly one group, the visitor is assigned to that group.
-4. If the visitor matches both groups, the visitor is assigned to exactly one group using deterministic, stable per-visitor assignment (a hash-based 50/50 split). The same visitor always lands in the same group. The visitor is never counted in both groups, overlap is not resolved by static priority of one group over the other, and only the overlapping subset is randomized — the rest of the audience is assigned by targeting alone.
-5. The exposure percentage is then applied to determine whether an eligible visitor enters the rule. A visitor that matches but falls outside the exposure percentage continues to the next rule, identical to the existing personalization model.
+1. When the shared trigger fires, both segments are evaluated against the full incoming population.
+2. If the visitor matches neither segment, the rule does not apply and the visitor continues to the next rule in the personalization evaluation.
+3. If the visitor matches one or both segments, the exposure percentage is applied to determine whether the visitor enters the rule. A visitor that matches but falls outside the exposure percentage continues to the next rule, identical to the existing personalization model.
+4. An eligible visitor is shown the single shared content once, regardless of how many segments they matched.
+5. For results, the visitor is attributed to every group whose segment they matched. A visitor who matches both segments is counted in both groups — double-counting is accepted as intended behaviour. The rule does not split, deduplicate, reassign, or prioritise overlapping visitors.
 
-Overlap is measured explicitly as a diagnostic indicator so the user can see how many visitors qualify for both groups.
+Overlap is not resolved in the engine and is not shown in the editor. Results are read as a head-to-head comparison of two targeting definitions over the same content and trigger, not as a comparison of mutually exclusive populations.
 
 ## **Rule cards display**
 
@@ -193,8 +194,9 @@ The feature introduces a new rule type and a new schema for two-group comparison
 At a conceptual level, the new rule type requires:
 
 * Rule type identification
-* Two targeting groups, each holding a Segment + Trigger conditions
-* An indicator of what conditions belong to the AI group (derived from the selected segment)
+* Two segments to compare, each holding a Segment definition
+* One shared Trigger for the rule
+* An indicator of which segment is the AI group (derived from the selected segment)
 * One shared content and an exposure percentage
 * The same common rule fields already used by targeting rules (scheduling, display, rollback, status)
 
@@ -203,20 +205,20 @@ At a conceptual level, the new rule type requires:
 This feature is expected to create value in several areas:
 
 * AI Targeting adoption and retention — users who can prove the lift keep AI Targeting on and expand it. This premise is industry-validated: every major platform pairs AI with a control or holdback precisely because demonstrable lift sustains adoption.
-* Trust — both targeting definitions and the overlap-handling rule are visible and explicit, a contrast to competitors whose AI targeting is delivered as comparatively black-box audiences (e.g. AB Tasty EmotionsAI, Optimizely AI-surfaced audiences).
+* Trust — both targeting definitions are visible and explicit, a contrast to competitors whose AI targeting is delivered as comparatively black-box audiences (e.g. AB Tasty EmotionsAI, Optimizely AI-surfaced audiences).
 * Pillar consolidation — the AI-vs-manual targeting question is answered inside Personalizations, without exporting it to Web Experiments.
-* Differentiated primitive (not parity). Optimizely, VWO and Adobe Target validate AI by comparing personalization, or a model's experience selection, against a control or holdback — none compare an AI targeting definition against a manual one on the same content, with overlap deterministically resolved so visitors are not double-counted. Adobe Target's Auto-Target is the nearest analog, but it compares model-driven experience selection to a control, not two targeting definitions on a fixed experience. Kameleoon's queue-native rule model expresses this as a single rule, which activity/campaign-mode tools cannot do cleanly.
+* Differentiated primitive (not parity). Optimizely, VWO and Adobe Target validate AI by comparing personalization, or a model's experience selection, against a control or holdback — none compare an AI targeting definition against a manual one on the same content, under one shared trigger, as a single queue-native rule. Adobe Target's Auto-Target is the nearest analog, but it compares model-driven experience selection to a control, not two targeting definitions on a fixed experience. Kameleoon's queue-native rule model expresses this as a single rule, which activity/campaign-mode tools cannot do cleanly.
 
 ## **Acceptance Criteria**
 
 1. Clicking + Add a rule in a Personalization opens the right panel on a rule-type selection step.
 2. The selection step presents AI Targeting Comparison as an available rule type alongside Targeting rule and Experiment rule.
-3. Selecting AI Targeting Comparison opens an adaptive form with a single Targeting section containing exactly two groups — no separate top-level Segments and Triggers blocks, and no add/remove-group control.
-4. Each group is configured with the familiar Segment + Trigger definition, including the web-page hierarchy and the segment/trigger pickers.
+3. Selecting AI Targeting Comparison opens an adaptive form with a single Targeting section containing exactly two segments to compare and one shared trigger — no separate top-level Segments and Triggers blocks, no per-group trigger, and no add/remove-group control.
+4. Each group is configured with the familiar Segment definition, and a single shared Trigger (including the web-page hierarchy and the trigger picker) governs when both segments are evaluated.
 5. AI Targeting is selected via a Specific segment flagged with an AI learning-state badge; exactly one group can include AI Targeting, and AI segments are disabled in the other group's picker.
 6. The rule cannot be saved when no group includes AI Targeting or when both groups do, and the blocking reason is shown.
 7. The Content section contains exactly one content selector and an exposure percentage control; there is no way to add a second content.
-8. The overlap behavior is explained in the Targeting section (short note, expandable helper, and a diagnostic indicator), and overlapping visitors are assigned to exactly one group by deterministic per-visitor assignment.
+8. The editor displays no overlap note or indicator. Visitors who qualify for both segments are counted in both groups (accepted double-counting); the rule does not split, deduplicate, or reassign them.
 9. AI Targeting Comparison rules are distinguishable in the card display, with a summary built from the group names and the shared content.
-10. Rule evaluation is performed correctly, top-to-bottom ordering is preserved, and no visitor is counted in both groups.
+10. Rule evaluation is performed correctly, top-to-bottom ordering is preserved, and each visitor is attributed to every group whose segment they matched.
 11. Visitor data is attributed correctly to the rule and to the assigned group, with results presented on the Results page (out of scope for this spec).

@@ -473,43 +473,30 @@ h2 { font-size: 16px; font-weight: 600; }
 .vb-list { margin: 8px 0 0 0; padding-left: 22px; }
 .vb-list li { font-size: 12px; color: var(--text-secondary); margin-bottom: 3px; line-height: 1.4; }
 
-/* ── Targeting group card ─────────────────────────────────────────── */
-/* One shared "group" colour — the frame says "this is a group container",
-   not "this group is special". Group identity itself comes from the name + chip. */
-.tgroup {
-  --grp: #4f46e5;
-  --grp-soft: #eef1ff;
-  --grp-border: #bcc1f5;
-  --grp-rail: #d8dcfa;
-  border: 1.5px solid var(--grp-border);
+/* ── Targeting segment card ───────────────────────────────────────── */
+.segment-card {
+  --seg: #4f46e5;
+  --seg-soft: #eef1ff;
+  --seg-border: #bcc1f5;
+  --seg-rail: #d8dcfa;
+  border: 1.5px solid var(--seg-border);
   border-radius: var(--radius);
   background: #fff;
   overflow: hidden;
 }
 
-.tgroup-head {
-  display: flex; align-items: center; gap: 8px;
+.segment-head {
+  display: flex; align-items: center; gap: 10px;
   padding: 11px 13px;
-  background: var(--grp-soft);
-  border-bottom: 1.5px solid var(--grp-border);
-  cursor: pointer;
+  background: var(--seg-soft);
+  border-bottom: 1.5px solid var(--seg-border);
 }
-.tgroup.collapsed .tgroup-head { border-bottom: none; }
-.tgroup-chev { font-size: 18px; color: var(--text-muted); }
-.tg-index {
+.segment-num {
   width: 20px; height: 20px; border-radius: 5px; flex-shrink: 0;
-  background: var(--grp, var(--text-muted)); color: #fff;
+  background: var(--seg); color: #fff;
   font-size: 11px; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
 }
-.tgroup-name {
-  background: transparent; border: 1px solid transparent;
-  font-family: inherit; font-size: 13px; font-weight: 600;
-  color: var(--text-primary); padding: 3px 5px; border-radius: 3px;
-  width: 96px;
-}
-.tgroup-name:hover { border-color: var(--border-soft); }
-.tgroup-name:focus { outline: none; border-color: var(--primary-blue); background: #fff; }
 
 .cap-chip {
   display: inline-flex; align-items: center; gap: 4px;
@@ -520,13 +507,12 @@ h2 { font-size: 16px; font-weight: 600; }
 .cap-chip.no-ai { background: #f0f0f4; color: var(--text-secondary); }
 .cap-chip .material-icons { font-size: 12px; }
 
-.tgroup-summary {
+.segment-summary {
   flex: 1; text-align: right;
   font-size: 11px; color: var(--text-muted);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.tgroup.collapsed .tgroup-body { display: none; }
-.tgroup-body { padding: 12px 13px; display: flex; flex-direction: column; gap: 10px; }
+.segment-body { padding: 12px 13px; display: flex; flex-direction: column; gap: 10px; }
 
 /* match operator */
 .match-op { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); }
@@ -598,33 +584,25 @@ h2 { font-size: 16px; font-weight: 600; }
   border-top: 1px solid var(--border-soft); margin-top: 3px;
 }
 
-/* ── Overlap note ─────────────────────────────────────────────────── */
-.overlap-note {
-  border: 1px solid #d9c9ff;
-  background: var(--ai-soft);
-  border-radius: var(--radius-sm);
-  padding: 11px 13px;
+/* ── Targeting sub-section headers (Segments to compare / Trigger) ─── */
+.subsection-head {
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  margin: 4px 0 2px;
 }
-.overlap-top { display: flex; align-items: flex-start; gap: 8px; }
-.overlap-top .material-icons { font-size: 16px; color: var(--ai-accent); margin-top: 1px; flex-shrink: 0; }
-.overlap-short { font-size: 12px; color: var(--text-primary); font-weight: 500; line-height: 1.45; }
-.overlap-toggle {
-  background: none; border: none; color: var(--ai-accent);
-  font-size: 11px; font-weight: 600; cursor: pointer; padding: 6px 0 0 24px;
+.subsection-head:not(:first-child) {
+  margin-top: 16px; padding-top: 14px;
+  border-top: 1px solid var(--border-soft);
 }
-.overlap-toggle:hover { text-decoration: underline; }
-.overlap-expanded {
-  font-size: 11.5px; color: var(--text-secondary);
-  line-height: 1.5; padding: 6px 0 0 24px;
+.subsection-title {
+  font-size: 12px; font-weight: 700; color: var(--text-primary);
 }
-.overlap-diag {
-  display: flex; align-items: center; gap: 6px;
-  margin-top: 9px; padding: 7px 9px;
-  background: #fff; border: 1px solid #e3d7ff; border-radius: var(--radius-sm);
-  font-size: 11.5px; color: var(--text-secondary);
+.subsection-hint { font-size: 11px; color: var(--text-muted); }
+
+/* Shared trigger sits on its own, not inside a group frame. */
+.def-block.shared-trigger {
+  border-left-color: var(--border-soft);
+  padding-top: 2px;
 }
-.overlap-diag .material-icons { font-size: 14px; color: var(--ai-accent); }
-.overlap-diag b { color: var(--text-primary); }
 
 /* ── Note / warning rows in section bodies ────────────────────────── */
 .inline-note {
@@ -637,17 +615,18 @@ h2 { font-size: 16px; font-weight: 600; }
 .inline-note .material-icons { font-size: 15px; margin-top: 1px; flex-shrink: 0; }
 
 /* ── Segment / Trigger definition blocks (radio-based) ────────────── */
-/* Segment & Trigger read as nested sub-sections inside the group — a soft
-   rail in the group colour signals the hierarchy below the group frame. */
+/* The segment block reads as a nested sub-section inside its segment card — a soft
+   rail signals the hierarchy. The shared trigger reuses the same block but sits outside
+   the segment cards (see .shared-trigger above). */
 .def-block {
   display: flex; flex-direction: column; gap: 7px;
   padding-left: 12px;
-  border-left: 2px solid var(--grp-rail, var(--border-soft));
+  border-left: 2px solid var(--seg-rail, var(--border-soft));
 }
 .def-block + .def-block { margin-top: 14px; }
 .def-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .def-title {
-  font-size: 11px; font-weight: 700; color: var(--grp, var(--text-primary));
+  font-size: 11px; font-weight: 700; color: var(--seg, var(--text-primary));
   text-transform: uppercase; letter-spacing: 0.04em;
 }
 .def-link { font-size: 12px; color: var(--primary-blue); }

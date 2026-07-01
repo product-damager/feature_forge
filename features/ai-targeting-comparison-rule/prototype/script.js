@@ -3,11 +3,14 @@
 //
 // Rule types in the queue:
 //   - 'targeting'      → single content (existing rule, minimal here)
-//   - 'ai-comparison'  → 2 targeting groups, each defined with the familiar
-//                        Segment + Trigger model. Exactly one group must use a
-//                        segment that contains an AI Targeting condition.
-//                        One shared content. (Goal lives at the personalization
-//                        level, like every other rule — not on this rule.)
+//   - 'ai-comparison'  → 2 segments to compare + 1 shared trigger. The two
+//                        segments differ only by their audience definition;
+//                        the trigger is held constant (like an Experiment rule
+//                        holds targeting constant and varies the content).
+//                        Exactly one segment must contain an AI Targeting
+//                        condition. One shared content. Overlap between the two
+//                        segments is accepted (double-counting) — not resolved,
+//                        not shown. (Goal lives at the personalization level.)
 // ----------------------------------------------------------------------------
 
 const CONTENTS = ['Content 1', 'Hero banner', 'Pricing callout', 'Free-shipping bar'];
@@ -62,13 +65,10 @@ let nextRuleId = 3;
 let gidCounter = 0;
 const DEFAULT_URL = 'https://www.allaboutbirds.org/';
 
-function newGroup(name, seg, trg) {
-  return {
-    id: 'grp' + (++gidCounter),
-    name,
-    seg: seg || { mode: 'all', id: null },
-    trg: trg || { mode: 'page', page: { sub: 'specific', url: DEFAULT_URL, fragment: '' }, id: null }
-  };
+// The trigger is shared by the whole rule — it defines WHEN both segments are
+// evaluated. Only the segment differs between the two.
+function newTrigger(trg) {
+  return trg || { mode: 'page', page: { sub: 'specific', url: DEFAULT_URL, fragment: '' }, id: null };
 }
 
 const state = {
@@ -88,20 +88,16 @@ const state = {
       status: 'draft',
       content: 'Content 1',
       exposure: 100,
-      groups: [
-        newGroup('Group 1',
-          { mode: 'specific', id: 's2' },                                   // AI segment
-          { mode: 'page', page: { sub: 'site', url: DEFAULT_URL }, id: null }),
-        newGroup('Group 2',
-          { mode: 'specific', id: 's1' },                                   // returning visitors
-          { mode: 'specific', page: { sub: 'specific', url: DEFAULT_URL }, id: 't1' })
+      segments: [
+        { mode: 'specific', id: 's2' },   // AI segment
+        { mode: 'specific', id: 's1' }    // returning visitors
       ],
+      trigger: newTrigger({ mode: 'page', page: { sub: 'site', url: DEFAULT_URL, fragment: '' }, id: null }),
       unsaved: false
     }
   ],
   selectedRuleId: null,
-  panelMode: 'empty',
-  collapsedGroups: {}
+  panelMode: 'empty'
 };
 
 let lastSavedSnapshot = snapshot();
@@ -153,31 +149,22 @@ function paintSlider(slider) {
 // ----------------------------------------------------------------------------
 // Group helpers — AI lives inside a segment
 // ----------------------------------------------------------------------------
-function segOf(g) { return g.seg.mode === 'specific' ? SEGMENTS.find(s => s.id === g.seg.id) : null; }
-function trgOf(g) { return g.trg.mode === 'specific' ? TRIGGERS.find(t => t.id === g.trg.id) : null; }
-function groupHasAI(g) { const s = segOf(g); return !!(s && s.ai); }
-function ruleHasAI(rule) { return rule.groups.some(groupHasAI); }
-function groupById(rule, id) { return rule.groups.find(g => g.id === id); }
+function segOf(seg) { return seg.mode === 'specific' ? SEGMENTS.find(s => s.id === seg.id) : null; }
+function trgOf(rule) { return rule.trigger.mode === 'specific' ? TRIGGERS.find(t => t.id === rule.trigger.id) : null; }
+function segmentHasAI(seg) { const s = segOf(seg); return !!(s && s.ai); }
+function ruleHasAI(rule) { return rule.segments.some(segmentHasAI); }
 
-function segSummary(g) {
-  if (g.seg.mode === 'all') return 'All visitors are targeted';
-  if (g.seg.mode === 'visitors') return 'Specific visitors';
-  const s = segOf(g);
+function segSummary(seg) {
+  if (seg.mode === 'all') return 'All visitors are targeted';
+  if (seg.mode === 'visitors') return 'Specific visitors';
+  const s = segOf(seg);
   return s ? s.name : 'Select a segment';
 }
-function trgSummary(g) {
-  if (g.trg.mode === 'page') return 'When a web page is reached';
-  if (g.trg.mode === 'combination') return 'Combination of triggers';
-  const t = trgOf(g);
+function trgSummary(rule) {
+  if (rule.trigger.mode === 'page') return 'When a web page is reached';
+  if (rule.trigger.mode === 'combination') return 'Combination of triggers';
+  const t = trgOf(rule);
   return t ? t.name : 'Select a trigger';
-}
-function groupDesc(g) {
-  let s = g.seg.mode === 'all' ? 'All visitors'
-    : g.seg.mode === 'visitors' ? 'Specific visitors'
-      : (segOf(g)?.name || 'Segment');
-  const t = trgOf(g);
-  if (t) s += ' + ' + t.name;
-  return s;
 }
 
 // ----------------------------------------------------------------------------
@@ -186,9 +173,9 @@ function groupDesc(g) {
 function validate(rule) {
   const issues = [];
   if (rule.type !== 'ai-comparison') return issues;
-  const aiGroups = rule.groups.filter(groupHasAI).length;
-  if (aiGroups === 0) issues.push('One group must use a segment that includes an AI Targeting condition.');
-  if (aiGroups === 2) issues.push('Only one group can include AI Targeting. Change the segment in one group.');
+  const aiSegments = rule.segments.filter(segmentHasAI).length;
+  if (aiSegments === 0) issues.push('One segment must include an AI Targeting condition.');
+  if (aiSegments === 2) issues.push('Only one segment can include AI Targeting. Change one segment.');
   return issues;
 }
 
@@ -201,9 +188,9 @@ function ruleSummaryHtml(rule) {
   }
   const issues = validate(rule);
   if (issues.length) return `<span class="incomplete">Incomplete — ${esc(issues[0])}</span>`;
-  const [g1, g2] = rule.groups;
-  const nm = (g) => groupHasAI(g) ? `<span class="ai-side">${esc(g.name)}</span>` : esc(g.name);
-  return `${nm(g1)} <span class="vs">vs</span> ${nm(g2)} → tested on <a href="#">${esc(rule.content)}</a>`;
+  const [s1, s2] = rule.segments;
+  const nm = (seg) => segmentHasAI(seg) ? `<span class="ai-side">${esc(segSummary(seg))}</span>` : esc(segSummary(seg));
+  return `${nm(s1)} <span class="vs">vs</span> ${nm(s2)} → tested on <a href="#">${esc(rule.content)}</a>`;
 }
 
 function renderRules() {
@@ -337,14 +324,22 @@ function aiFormHtml(rule) {
       <div class="section-head">
         <div class="section-head-left">
           <span class="section-title">Targeting</span>
-          <span class="section-meta">2 groups</span>
+          <span class="section-meta">2 segments · 1 shared trigger</span>
         </div>
         <span class="material-icons section-chev">expand_more</span>
       </div>
       <div class="section-body">
-        ${rule.groups.map((g, i) => groupHtml(rule, g, i)).join('')}
+        <div class="subsection-head">
+          <span class="subsection-title">Segments to compare</span>
+          <span class="subsection-hint">The only difference between the two targeting paths.</span>
+        </div>
+        ${rule.segments.map((seg, i) => segmentHtml(rule, seg, i)).join('')}
 
-        ${overlapHtml()}
+        <div class="subsection-head">
+          <span class="subsection-title">Trigger</span>
+          <span class="subsection-hint">Shared — when both segments are evaluated and the content is shown.</span>
+        </div>
+        ${triggerBlockHtml(rule)}
       </div>
     </div>
 
@@ -393,56 +388,52 @@ function optionalSection(title) {
     </div>`;
 }
 
-function groupHtml(rule, group, idx) {
-  const hasAI = groupHasAI(group);
-  const aiSeg = hasAI ? segOf(group) : null;
-  const collapsed = !!state.collapsedGroups[group.id];
+function segmentHtml(rule, seg, idx) {
+  const hasAI = segmentHasAI(seg);
+  const aiSeg = hasAI ? segOf(seg) : null;
   const chip = hasAI
-    ? `<span class="cap-chip ai" title="This group uses AI Targeting to decide who qualifies."><span class="material-icons">auto_awesome</span> AI Targeting</span>${aiSeg ? aiStateBadge(aiSeg.aiState) : ''}`
-    : `<span class="cap-chip no-ai" title="This group uses standard targeting conditions. That's expected — it's the comparison baseline.">No AI targeting</span>`;
+    ? `<span class="cap-chip ai" title="This segment uses AI Targeting to decide who qualifies."><span class="material-icons">auto_awesome</span> AI Targeting</span>${aiSeg ? aiStateBadge(aiSeg.aiState) : ''}`
+    : `<span class="cap-chip no-ai" title="This segment uses standard targeting conditions. That's expected — it's the comparison baseline.">Standard targeting</span>`;
 
   return `
-    <div class="tgroup ${collapsed ? 'collapsed' : ''}" data-group="${group.id}">
-      <div class="tgroup-head" data-toggle="${group.id}">
-        <span class="material-icons tgroup-chev">${collapsed ? 'chevron_right' : 'expand_more'}</span>
-        <span class="tg-index">${idx + 1}</span>
-        <input class="tgroup-name" data-rename="${group.id}" value="${esc(group.name)}" onclick="event.stopPropagation()">
+    <div class="segment-card" data-segment-idx="${idx}">
+      <div class="segment-head">
+        <span class="segment-num">${idx + 1}</span>
         ${chip}
-        <span class="tgroup-summary">${esc(segSummary(group))}</span>
+        <span class="segment-summary">${esc(segSummary(seg))}</span>
       </div>
-      <div class="tgroup-body">
+      <div class="segment-body">
         ${aiNoteHtml(aiSeg)}
-        ${segmentBlockHtml(rule, group)}
-        ${triggerBlockHtml(rule, group)}
+        ${segmentBlockHtml(rule, seg, idx)}
       </div>
     </div>`;
 }
 
 // ── Segment definition (radio buttons, mirrors current Kameleoon UI) ──
-function segmentBlockHtml(rule, g) {
-  const m = g.seg.mode;
-  const otherHasAI = rule.groups.some(x => x !== g && groupHasAI(x));
+function segmentBlockHtml(rule, seg, idx) {
+  const m = seg.mode;
+  const otherHasAI = rule.segments.some((x, i) => i !== idx && segmentHasAI(x));
   return `
     <div class="def-block">
       <div class="def-head">
         <span class="def-title">Segment</span>
-        <span class="def-link">${esc(segSummary(g))}</span>
+        <span class="def-link">${esc(segSummary(seg))}</span>
       </div>
       <div class="def-q">Who should see the personalization?</div>
 
       <label class="radio-row">
-        <input type="radio" name="seg-${g.id}" data-seg-mode="all" data-group="${g.id}" ${m === 'all' ? 'checked' : ''}>
+        <input type="radio" name="seg-${idx}" data-seg-mode="all" data-seg-idx="${idx}" ${m === 'all' ? 'checked' : ''}>
         <span>All Visitors</span>
       </label>
 
       <label class="radio-row">
-        <input type="radio" name="seg-${g.id}" data-seg-mode="specific" data-group="${g.id}" ${m === 'specific' ? 'checked' : ''}>
+        <input type="radio" name="seg-${idx}" data-seg-mode="specific" data-seg-idx="${idx}" ${m === 'specific' ? 'checked' : ''}>
         <span>Specific segment</span>
       </label>
-      ${m === 'specific' ? `<div class="radio-sub">${ksSelectHtml('seg', g, otherHasAI)}</div>` : ''}
+      ${m === 'specific' ? `<div class="radio-sub">${ksSelectHtml(seg, idx, otherHasAI)}</div>` : ''}
 
       <label class="radio-row disabled">
-        <input type="radio" name="seg-${g.id}" data-seg-mode="visitors" data-group="${g.id}" disabled ${m === 'visitors' ? 'checked' : ''}>
+        <input type="radio" name="seg-${idx}" data-seg-mode="visitors" data-seg-idx="${idx}" disabled ${m === 'visitors' ? 'checked' : ''}>
         <span>Specific visitors</span>
         <span class="material-icons rr-help">help_outline</span>
       </label>
@@ -450,50 +441,52 @@ function segmentBlockHtml(rule, g) {
     </div>`;
 }
 
-// ── Trigger definition (radio buttons + page hierarchy) ──
-function triggerBlockHtml(rule, g) {
-  const m = g.trg.mode;
-  const sub = g.trg.page.sub;
+// ── Shared trigger definition (radio buttons + page hierarchy) ──
+// One trigger for the whole rule — governs when both segments are evaluated.
+function triggerBlockHtml(rule) {
+  const trg = rule.trigger;
+  const m = trg.mode;
+  const sub = trg.page.sub;
   return `
-    <div class="def-block">
+    <div class="def-block shared-trigger">
       <div class="def-head">
         <span class="def-title">Trigger</span>
-        <span class="def-link">${esc(trgSummary(g))}</span>
+        <span class="def-link">${esc(trgSummary(rule))}</span>
       </div>
-      <div class="def-q">When should a visitor be exposed to your personalization?</div>
+      <div class="def-q">When should the two segments be evaluated and the content shown?</div>
 
       <label class="radio-row">
-        <input type="radio" name="trg-${g.id}" data-trg-mode="page" data-group="${g.id}" ${m === 'page' ? 'checked' : ''}>
+        <input type="radio" name="trg-shared" data-trg-mode="page" ${m === 'page' ? 'checked' : ''}>
         <span>When a web page is reached</span>
       </label>
       ${m === 'page' ? `
         <div class="radio-sub">
           <label class="radio-row">
-            <input type="radio" name="trgpage-${g.id}" data-trg-page="specific" data-group="${g.id}" ${sub === 'specific' ? 'checked' : ''}>
+            <input type="radio" name="trgpage-shared" data-trg-page="specific" ${sub === 'specific' ? 'checked' : ''}>
             <span>A specific page</span>
             <span class="material-icons rr-help">help_outline</span>
           </label>
-          ${sub === 'specific' ? `<input type="text" class="input-field" data-trg-url data-group="${g.id}" value="${esc(g.trg.page.url)}">` : ''}
+          ${sub === 'specific' ? `<input type="text" class="input-field" data-trg-url value="${esc(trg.page.url)}">` : ''}
           <label class="radio-row">
-            <input type="radio" name="trgpage-${g.id}" data-trg-page="fragment" data-group="${g.id}" ${sub === 'fragment' ? 'checked' : ''}>
+            <input type="radio" name="trgpage-shared" data-trg-page="fragment" ${sub === 'fragment' ? 'checked' : ''}>
             <span>The URLs containing a specific fragment</span>
           </label>
-          ${sub === 'fragment' ? `<input type="text" class="input-field" data-trg-fragment data-group="${g.id}" placeholder="e.g. /pricing" value="${esc(g.trg.page.fragment || '')}">` : ''}
+          ${sub === 'fragment' ? `<input type="text" class="input-field" data-trg-fragment placeholder="e.g. /pricing" value="${esc(trg.page.fragment || '')}">` : ''}
           <label class="radio-row">
-            <input type="radio" name="trgpage-${g.id}" data-trg-page="site" data-group="${g.id}" ${sub === 'site' ? 'checked' : ''}>
+            <input type="radio" name="trgpage-shared" data-trg-page="site" ${sub === 'site' ? 'checked' : ''}>
             <span>The entire site</span>
             <span class="material-icons rr-help" title="Caution: This will target all pages within the project scope.">help_outline</span>
           </label>
         </div>` : ''}
 
       <label class="radio-row">
-        <input type="radio" name="trg-${g.id}" data-trg-mode="specific" data-group="${g.id}" ${m === 'specific' ? 'checked' : ''}>
+        <input type="radio" name="trg-shared" data-trg-mode="specific" ${m === 'specific' ? 'checked' : ''}>
         <span>When a specific trigger occurs</span>
       </label>
-      ${m === 'specific' ? `<div class="radio-sub">${ksSelectHtml('trg', g, false)}</div>` : ''}
+      ${m === 'specific' ? `<div class="radio-sub">${triggerSelectHtml(rule)}</div>` : ''}
 
       <label class="radio-row disabled">
-        <input type="radio" name="trg-${g.id}" data-trg-mode="combination" data-group="${g.id}" disabled ${m === 'combination' ? 'checked' : ''}>
+        <input type="radio" name="trg-shared" data-trg-mode="combination" disabled ${m === 'combination' ? 'checked' : ''}>
         <span>When a combination of triggers occurs</span>
         <span class="material-icons rr-help">help_outline</span>
       </label>
@@ -501,31 +494,30 @@ function triggerBlockHtml(rule, g) {
     </div>`;
 }
 
-// ── Rich dropdown (so AI segments can show a badge) ──
-function ksSelectHtml(kind, g, disableAI) {
-  const opts = kind === 'seg' ? SEGMENTS : TRIGGERS;
-  const curId = kind === 'seg' ? g.seg.id : g.trg.id;
-  const cur = opts.find(o => o.id === curId);
+// ── Segment dropdown (so AI segments can show a learning-state badge) ──
+function ksSelectHtml(seg, idx, disableAI) {
+  const curId = seg.id;
+  const cur = SEGMENTS.find(o => o.id === curId);
   const label = cur
     ? `<span class="ks-select-label">${esc(cur.name)}${cur.ai ? ' ' + aiStateBadge(cur.aiState) : ''}</span>`
-    : `<span class="ks-select-label"><span class="ph">${kind === 'seg' ? 'Select a segment…' : 'Select a trigger…'}</span></span>`;
+    : `<span class="ks-select-label"><span class="ph">Select a segment…</span></span>`;
 
-  const rows = opts.map(o => {
-    const disabled = kind === 'seg' && o.ai && disableAI;
+  const rows = SEGMENTS.map(o => {
+    const disabled = o.ai && disableAI;
     return `
       <button class="ks-opt ${o.id === curId ? 'selected' : ''} ${disabled ? 'disabled' : ''}"
-              data-ks-opt="${o.id}" data-kind="${kind}" data-group="${g.id}" ${disabled ? 'data-disabled="1"' : ''}>
+              data-ks-opt="${o.id}" data-seg-idx="${idx}" ${disabled ? 'data-disabled="1"' : ''}>
         <span>${esc(o.name)}</span>
         ${o.ai ? aiStateBadge(o.aiState) : ''}
       </button>`;
   }).join('');
 
-  const note = (kind === 'seg' && disableAI)
-    ? `<div class="ks-menu-note">AI segments are disabled here — the other group already includes AI Targeting.</div>`
+  const note = disableAI
+    ? `<div class="ks-menu-note">AI segments are disabled here — the other segment already includes AI Targeting.</div>`
     : '';
 
   return `
-    <div class="ks-select" data-kind="${kind}" data-group="${g.id}">
+    <div class="ks-select">
       <button class="ks-select-btn" data-ks-toggle>
         ${label}
         <span class="material-icons">expand_more</span>
@@ -537,20 +529,27 @@ function ksSelectHtml(kind, g, disableAI) {
     </div>`;
 }
 
-function overlapHtml() {
+// ── Shared trigger dropdown (one per rule, no AI concerns) ──
+function triggerSelectHtml(rule) {
+  const curId = rule.trigger.id;
+  const cur = TRIGGERS.find(o => o.id === curId);
+  const label = cur
+    ? `<span class="ks-select-label">${esc(cur.name)}</span>`
+    : `<span class="ks-select-label"><span class="ph">Select a trigger…</span></span>`;
+
+  const rows = TRIGGERS.map(o => `
+      <button class="ks-opt ${o.id === curId ? 'selected' : ''}" data-ks-trg-opt="${o.id}">
+        <span>${esc(o.name)}</span>
+      </button>`).join('');
+
   return `
-    <div class="overlap-note">
-      <div class="overlap-top">
-        <span class="material-icons">shuffle</span>
-        <span class="overlap-short">Visitors who match both groups are assigned to one group automatically for a clean comparison.</span>
-      </div>
-      <button class="overlap-toggle" id="overlapToggle">How overlap is handled →</button>
-      <div class="overlap-expanded hidden" id="overlapExpanded">
-        If a visitor qualifies for both targeting groups, they are assigned to exactly one group using stable random assignment so they are not counted twice. Both groups are still evaluated against the full incoming population — only the overlap is split, 50/50, by a stable per-visitor hash.
-      </div>
-      <div class="overlap-diag">
-        <span class="material-icons">insights</span>
-        <span>Estimated overlap: <b>~18%</b> of matched visitors → split evenly between groups (diagnostic only).</span>
+    <div class="ks-select" data-kind="trg">
+      <button class="ks-select-btn" data-ks-toggle>
+        ${label}
+        <span class="material-icons">expand_more</span>
+      </button>
+      <div class="ks-select-menu hidden">
+        ${rows}
       </div>
     </div>`;
 }
@@ -585,13 +584,6 @@ function wireAIForm(rule) {
     markDirty();
   });
 
-  const ot = $('#overlapToggle');
-  ot.addEventListener('click', () => {
-    const ex = $('#overlapExpanded');
-    ex.classList.toggle('hidden');
-    ot.textContent = ex.classList.contains('hidden') ? 'How overlap is handled →' : 'Hide details ↑';
-  });
-
   // section collapse
   els.formBody.querySelectorAll('.config-section .section-head').forEach(head => {
     head.addEventListener('click', () => {
@@ -603,48 +595,31 @@ function wireAIForm(rule) {
     });
   });
 
-  // group collapse
-  els.formBody.querySelectorAll('[data-toggle]').forEach(h => {
-    h.addEventListener('click', () => {
-      const gid = h.dataset.toggle;
-      state.collapsedGroups[gid] = !state.collapsedGroups[gid];
-      rerender();
-    });
-  });
-
-  // group rename
-  els.formBody.querySelectorAll('[data-rename]').forEach(inp => {
-    inp.addEventListener('input', (e) => {
-      const g = groupById(rule, e.target.dataset.rename);
-      if (g) { g.name = e.target.value; markDirty(); }
-    });
-  });
-
   // segment mode radios
   els.formBody.querySelectorAll('[data-seg-mode]').forEach(r => {
     r.addEventListener('change', (e) => {
-      const g = groupById(rule, e.target.dataset.group);
-      g.seg.mode = e.target.dataset.segMode;
-      if (g.seg.mode === 'specific' && !g.seg.id) g.seg.id = firstSelectableSegment(rule, g);
+      const idx = parseInt(e.target.dataset.segIdx, 10);
+      rule.segments[idx].mode = e.target.dataset.segMode;
+      if (rule.segments[idx].mode === 'specific' && !rule.segments[idx].id) {
+        rule.segments[idx].id = firstSelectableSegment(rule, idx);
+      }
       rerender(); markDirty();
     });
   });
 
-  // trigger mode radios
+  // shared trigger mode radios
   els.formBody.querySelectorAll('[data-trg-mode]').forEach(r => {
     r.addEventListener('change', (e) => {
-      const g = groupById(rule, e.target.dataset.group);
-      g.trg.mode = e.target.dataset.trgMode;
-      if (g.trg.mode === 'specific' && !g.trg.id) g.trg.id = TRIGGERS[0].id;
+      rule.trigger.mode = e.target.dataset.trgMode;
+      if (rule.trigger.mode === 'specific' && !rule.trigger.id) rule.trigger.id = TRIGGERS[0].id;
       rerender(); markDirty();
     });
   });
 
-  // page sub radios
+  // shared trigger page-sub radios
   els.formBody.querySelectorAll('[data-trg-page]').forEach(r => {
     r.addEventListener('change', (e) => {
-      const g = groupById(rule, e.target.dataset.group);
-      g.trg.page.sub = e.target.dataset.trgPage;
+      rule.trigger.page.sub = e.target.dataset.trgPage;
       rerender(); markDirty();
     });
   });
@@ -652,16 +627,14 @@ function wireAIForm(rule) {
   // url input (no rerender — keep focus)
   els.formBody.querySelectorAll('[data-trg-url]').forEach(inp => {
     inp.addEventListener('input', (e) => {
-      const g = groupById(rule, e.target.dataset.group);
-      g.trg.page.url = e.target.value; markDirty();
+      rule.trigger.page.url = e.target.value; markDirty();
     });
   });
 
   // fragment input (no rerender — keep focus)
   els.formBody.querySelectorAll('[data-trg-fragment]').forEach(inp => {
     inp.addEventListener('input', (e) => {
-      const g = groupById(rule, e.target.dataset.group);
-      g.trg.page.fragment = e.target.value; markDirty();
+      rule.trigger.page.fragment = e.target.value; markDirty();
     });
   });
 
@@ -675,21 +648,28 @@ function wireAIForm(rule) {
       if (wasHidden) menu.classList.remove('hidden');
     });
   });
-  // rich dropdown: option click
+  // segment dropdown: option click
   els.formBody.querySelectorAll('[data-ks-opt]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (btn.dataset.disabled) { flash('Only one group can include AI Targeting.'); return; }
-      const g = groupById(rule, btn.dataset.group);
-      if (btn.dataset.kind === 'seg') g.seg.id = btn.dataset.ksOpt;
-      else g.trg.id = btn.dataset.ksOpt;
+      if (btn.dataset.disabled) { flash('Only one segment can include AI Targeting.'); return; }
+      const idx = parseInt(btn.dataset.segIdx, 10);
+      rule.segments[idx].id = btn.dataset.ksOpt;
+      rerender(); markDirty();
+    });
+  });
+  // shared trigger dropdown: option click
+  els.formBody.querySelectorAll('[data-ks-trg-opt]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      rule.trigger.id = btn.dataset.ksTrgOpt;
       rerender(); markDirty();
     });
   });
 }
 
-function firstSelectableSegment(rule, g) {
-  const otherHasAI = rule.groups.some(x => x !== g && groupHasAI(x));
+function firstSelectableSegment(rule, idx) {
+  const otherHasAI = rule.segments.some((x, i) => i !== idx && segmentHasAI(x));
   const pick = SEGMENTS.find(s => !(s.ai && otherHasAI));
   return (pick || SEGMENTS[0]).id;
 }
@@ -794,10 +774,11 @@ function createRule(type) {
       id, ruleId, type, name: 'New AI Targeting Comparison rule', status: 'draft',
       content: CONTENTS[0],
       exposure: 100,
-      groups: [
-        newGroup('Group 1', { mode: 'specific', id: 's2' }),   // defaults to an AI segment
-        newGroup('Group 2', { mode: 'all', id: null })
+      segments: [
+        { mode: 'specific', id: 's2' },   // defaults to an AI segment
+        { mode: 'all', id: null }
       ],
+      trigger: newTrigger(),
       unsaved: true
     };
   }

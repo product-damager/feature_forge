@@ -1,91 +1,76 @@
-# Methodology & Competitive Research — AI Targeting Comparison Rule
+# **Methodology & Competitive Research — AI Targeting Comparison Rule**
 
-This is a background document. It does not redefine the feature — it records *why* the design is sound, where it is methodologically stronger or weaker than the alternatives, and which assumptions must hold for the results to be trustworthy. The authoritative product definition lives in `product-spec.md` and `spec.md`; this file informs the open decisions called out there.
+## **Purpose**
 
----
+Background document for the AI Targeting Comparison rule. It records the thoughts about methodological basis for the design, the competitive context, and the assumptions that must hold for results to be trustworthy.
 
-## 1. Is the underlying question even valid?
+## **Scope**
 
-The question the rule answers — "does AI-driven targeting select better-converting visitors than a hand-built definition, for the same content?" — is a form of **segment-based / targeted experimentation**. This is a recognized, valid pattern in the discipline, with one important condition: the segments and the hypothesis must be **defined up front**, with enough sample per segment. Slicing one broad test into many segments *after the fact* is legitimate for exploration but is weaker evidence than a comparison designed around the segments from the start (Optimizely explicitly frames result segmentation as exploration, not decision-making).
+* Validity of the question the rule answers.  
+* How competing platforms address the adjacent needs.  
+* What the comparison measures, and how results must be interpreted.  
+* The decision-time availability requirement for AI scoring.  
+* Implications carried back into the main spec doc.
 
-Where this rule sits: it **predefines exactly two audiences and holds the content constant**, so it is on the strong side of that bar — a designed comparison, not post-hoc slicing. That is the core reason the design is defensible.
+## **1\. Validity of the comparison**
 
----
+The rule answers a major question: does AI-driven targeting select better-converting visitors than a hand-built definition, given the same content?  
+The segment-based experimentation, an established pattern in SEO and other marketing branches, is valid under condition — segments and hypotheses are defined before the test runs, with sufficient sample per segment. \[[hcl report](https://help.hcl-software.com/commerce/9.1.0/management-center/tasks/tsbexctsegment.html)\] 
 
-## 2. Competitive landscape — how rivals handle "audiences vs one content"
+Slicing a broad test into segments after the fact is acceptable for exploration but is weaker evidence than a comparison designed around the segments from the start. (Some vendors frame result segmentation as exploration, not decision-making.) 
 
-No major platform exposes "two targeting definitions, one content, head-to-head" as a first-class setup. They approach the adjacent need two ways: **segment targeting** (who sees it) plus **segment comparison in reporting** (how each segment reacted), and **AI/automation applied to content selection** measured against a control.
+The new rule predefines exactly two audiences and holds content constant. It is a designed comparison, not post-hoc slicing, which is the basis for treating its output as decision-grade.
 
-| Vendor | What they offer that is adjacent | What they do **not** offer |
-| --- | --- | --- |
-| **Optimizely** | AI-surfaced audiences; automatic **Holdback** (default ~5% see the original) and **global holdouts**; "Segment your results" for post-hoc slicing. | A single rule comparing an AI targeting definition vs a manual one on the same content. Holdback compares *personalization vs no personalization*, not *targeting method vs targeting method*. |
-| **VWO** | ML personalization; **Holdback** control group; **Compare Multiple Segments** in reporting. | Same gap — comparison of segments is post-hoc in the report (and overlapping visitors are counted in both segments). |
-| **AB Tasty** | **EmotionsAI** psychographic AI segments; multi-experience personalization (one experience per segment). | A deduplicated, single-rule AI-vs-manual comparison — you would run separate experiences/campaigns and reconcile in analytics. |
-| **Adobe Target** | **Auto-Target / Automated Personalization** always measured against a **control group**; reporting compares the model vs random-serve. | Compares the model's *experience selection* to a control — not an *AI audience definition* vs a *manual audience definition* on a fixed experience. Closest analog, but a different axis. |
+## **2\. Competitive landscape**
 
-**Two takeaways:**
-1. The differentiator is **not "we let you validate AI"** — competitors validate AI against a control/holdback. It is the **specific primitive**: two predefined targeting definitions, one content, overlap deterministically resolved, in one queue-native rule.
-2. The competitor norm — **"Compare Segments" in the results page — double-counts visitors who fall in both segments**, which contaminates the contrast. Our deterministic overlap resolution assigns each visitor once, which is the cleaner statistic. This is a real methodological edge, not a cosmetic one.
+No major platform exposes "two targeting definitions, one content, head-to-head" as a first-class setup. Competitors address the adjacent need in two ways: segment targeting (who sees it) plus segment comparison in reporting (how each segment reacted), and AI applied to content selection measured against a control.
 
----
+| Vendor | Adjacent capability | Gap |
+| ----- | ----- | ----- |
+| Optimizely | AI-surfaced audiences; automatic Holdback (default \~5% see the original) and global holdouts; "Segment your results" for post-hoc slicing. | No single rule comparing an AI targeting definition against a manual one on the same content. Holdback compares personalization vs no personalization, not targeting method vs targeting method. |
+| VWO | ML personalization; Holdback control group; Compare Multiple Segments in reporting. | Same gap. Segment comparison is post-hoc slicing in the report, not a designed, pre-registered comparison over one fixed content. |
+| AB Tasty | EmotionsAI psychographic AI segments; multi-experience personalization (one experience per segment). | No deduplicated, single-rule AI-vs-manual comparison. Separate experiences are run and reconciled in analytics. |
+| Adobe Target | Auto-Target / Automated Personalization measured against a control group; reporting compares the model vs random-serve. | Compares the model's experience selection to a control, not an AI audience definition against a manual one on a fixed experience. Possibly they can compare segments (no interface found, but they talk about it). https://experienceleague.adobe.com/en/docs/target/using/reports/personalization-reports/reports-ap |
 
-## 3. What the comparison actually measures
+Two conclusions:
 
-This is the most important interpretation caveat and must be reflected in copy and in the (future) results view.
+1. Competitors already validate AI against a control or holdback, as we can as well. Our rule serves a specific case they do not: two predefined targeting definitions, one content, one shared trigger, in a single queue-native rule.  
+2. The competitors' norm is post-hoc "Compare Segments" in the results page — slicing a broad test after the fact. Our edge is that the two segments are pre-registered as a designed comparison over a fixed content and trigger, not discovered afterward. Like those tools, visitors in the overlap are counted in both segments (accepted double-counting); the difference is that our comparison is designed up front and the overlap is made explicit for interpretation rather than hidden.
 
-Let `A` = visitors the AI group qualifies, `M` = visitors the manual group qualifies, `O = A ∩ M` (the overlap). Because overlap is split 50/50 by a stable hash:
+## **3\. What should we measure**
 
-- **Group AI** = `(A \ M)` + half of `O`
-- **Group Manual** = `(M \ A)` + half of `O`
+Results interpretation must be reflected in the future results view.
+
+Definitions: A = visitors the AI group qualifies; M = visitors the manual group qualifies; O = A ∩ M (the overlap).
+
+Visitors in the overlap (O) are counted in **both** groups. This means a visitor who qualifies for both AI and manual targeting contributes to both group's conversion metrics. Double-counting is accepted as the intended behaviour.
 
 Consequences:
 
-- **The difference between the groups is driven by the exclusive populations** — the visitors where AI and manual *disagree*. The overlap (where both methods agree) is split randomly, so it contributes equally to both sides in expectation and cannot, by construction, distinguish the two methods. This is actually the *right* question: "when the two targeting methods disagree about whom to target, which one is right?"
-- **A group's conversion rate is *not* the pure segment's conversion rate.** It is diluted toward the overlap's rate. Results copy must present this as a **comparison between two groups**, never as "the AI segment's true conversion rate."
-- **Statistical power depends on the size of the exclusive populations, not on total matched traffic.** If overlap is high, the exclusive groups are small and the test has little power to detect a difference *even with heavy traffic*.
+* A group's conversion rate reflects all visitors that targeting definition qualifies — including those who also qualified for the other group. Results should be presented as a comparison between two targeting definitions, not as mutually exclusive populations.  
+* The overlap inflates both groups' sample sizes and may introduce correlation between the groups' metrics. Results must make clear that groups are not independent when overlap is significant.  
+* Statistical power and interpretation are influenced by how much the two groups share. A large overlap means both definitions are largely selecting the same visitors, making the comparison less informative — but the results remain valid as a head-to-head metric comparison, just showing that the manual selection is good enough to match AI targeting.
 
-**Design implications:**
-- The overlap indicator is not a passing "FYI" — it is effectively a **discriminating-power signal**. High overlap → warn that the comparison may be inconclusive.
-- The results view should surface the **exclusive-population sizes**, and ideally offer an **exclusive-only contrast** (`A \ M` vs `M \ A`) for the purest read.
+Design implications:
 
-**Why 50/50 and not another rule for overlap:**
-- *Static priority* (always give overlap to one group) — rejected: biases the comparison.
-- *Exclude overlap entirely* (compare only exclusives) — purest contrast, but the personalization then does not run for a chunk of matched visitors; wasteful and surprising.
-- *50/50 stable split* — keeps the experience running for everyone matched, keeps each visitor counted once, and leaves the contrast unbiased. It is the pragmatic choice; the exclusive-only view above can still be offered analytically.
+* The overlap indicator remains a useful signal for interpreting results. High overlap means the two targeting definitions largely agree on who to target; the measured difference in conversion rates reflects how those shared visitors responded to each path, not which visitors each method uniquely selected.  
+* The results view should display group sizes (with overlap noted if possible) so readers understand the composition of each group.
 
----
+## **4\. AI learner availability at decision time**
 
-## 4. Retro-matching / AI availability at decision time
+Primary risk is that AI-based segments are often evolved after the fact from accumulated signals (new AI learner data, evolving impressions, new visitor events or params). The AI verdict must exist at evaluation time for a visitor to count toward the AI group, which raises the question: what changes if the AI evolves, and does a visitor's group membership move with it?
 
-The sharpest practical risk. AI-based segments are often **reconstructed after the fact** from accumulated signal (cold start, first impression, locally stored events). Deterministic overlap resolution requires knowing **both** group memberships **at the moment the rule fires** — so the AI verdict must exist at decision time, or the design degrades.
+Open questions for engineering:
 
-This must be promoted from a latency footnote to a **named design decision**. Open questions for engineering:
+* **Unscored visitor**. If the AI verdict is unavailable on a visit, the visitor does not match the AI segment (and still counts toward the manual group if that segment matches). Confirm this is acceptable and does not silently starve the AI group as the AI evolves.  
+* **Late scoring vs stable attribution**. If the AI verdict arrives on a later visit and would change membership, re-attributing breaks a stable read, but never updating biases the AI group toward already-warm visitors. Possible route: membership is fixed at first qualifying evaluation; a visitor who only later becomes AI-eligible counts toward the AI group from that point, and reporting notes the cohort effect.  
+* **Cold-start cohort bias**. First-time visitors may be under-represented in the AI group. Flag for results methodology so it is not misread as "AI converts worse", it is partially solved by design, displaying tags about learner readiness (Learning / No data / Weak badges)
 
-- **Unscored visitor:** if the AI verdict is not yet available on an impression, the visitor simply does **not** match the AI group that impression (and flows to the manual group, if matched, or to the next rule). Confirm this is acceptable and that it does not silently starve the AI group.
-- **Late scoring vs stable assignment:** if the AI verdict arrives on a later visit and would change membership, re-bucketing breaks the stable-assignment guarantee, but never updating biases the AI group toward already-warm visitors. Pick and document the rule (recommended: assignment is fixed at first qualifying evaluation; a visitor who only later becomes AI-eligible enters the AI group from that point, and reporting notes the cohort effect).
-- **Cold-start cohort bias:** first-time visitors may be systematically under-represented in the AI group. Flag for the results methodology so it is not misread as "AI converts worse."
+If the AI condition cannot be evaluated reliably at decision time, group attribution weakens. Validate this assumption first.
 
-If the AI condition cannot be evaluated reliably at decision time, the whole deterministic-overlap model weakens — this is the assumption to validate **first**.
+One editor-time reliability gate, one results-time signal. These answer different questions and must not be collapsed into one:
 
-**Two independent reliability gates.** The rule surfaces the AI segment's **learning state** (Learning / No data / Weak / Moderate / Good) from the AI Predictive visibility work (project #38057) as a read-only badge. These answer different questions and should not be conflated:
-- **Learning state** = does the AI side have *enough data to trust* (is the model trained / does the segment have signal)?
-- **Overlap** (§3) = do the two groups differ *enough to measure* (is there discriminating power)?
-A comparison is only dependable when both gates are green: an AI segment at "Good" with low overlap. The UI warns on each independently.
+* Learning state (editor-time gate) — does the AI side have enough data to trust (is the model trained, does the segment have signal)? The rule surfaces this from the AI Targeting visibility work (US 38057\) as a read-only badge, and it is the gate the user acts on before relying on the comparison.  
+* Overlap (results-time signal) — how much do the two definitions agree on who to target? This is an interpretation aid in the results view, not a configuration-time validity gate: a high overlap does not invalidate the comparison, it means the manual definition largely matches the AI's selection. It is not shown in the editor, where measuring it reliably is not assumed feasible.
 
----
-
-## 5. Implications carried into the spec
-
-- `product-spec.md` — overlap indicator reframed as a **power signal** (warn at high overlap); the comparison is described as isolating **disagreement**, not pure-segment rates; AI-decision-availability added as an explicit evaluation requirement; Business Impact competitive claim tightened from "parity" to a precise differentiator.
-- `engineering-brief.md` — "AI decision availability at evaluation time + stable-assignment fallback on late scoring" promoted to a first-class open decision.
-- `analysis.md` — competitive section and a short statistical-interpretation note kept consistent with this file.
-
----
-
-## Sources
-
-- Optimizely — [Holdback: Measure overall impact in Personalization](https://support.optimizely.com/hc/en-us/articles/27733899001741-Holdback-Measure-overall-impact-in-Personalization); [Segment your results](https://support.optimizely.com/hc/en-us/articles/4410289536653-Segment-your-results); [Personalization buyer's guide](https://www.optimizely.com/insights/latest-personalization-buyers-guide/)
-- VWO — [Compare Multiple Segments](https://help.vwo.com/hc/en-us/articles/900002164826-Compare-Multiple-Segments-in-VWO); [Interpreting VWO Personalize Campaign Reports](https://help.vwo.com/hc/en-us/articles/7231108188185-Interpreting-VWO-Personalize-Campaign-Reports); [VWO Personalize](https://vwo.com/personalization/)
-- AB Tasty — [EmotionsAI functioning](https://docs.abtasty.com/emotions-ai/first-steps-with-emotionsai/emotionsai-functioning); [EmotionsAI segments](https://www.abtasty.com/resources/emotions-ai-segments/); [Creating and managing segments](https://docs.abtasty.com/assets-library/creating-and-managing-segments)
-- Adobe Target — [What is an Automated Personalization activity](https://experienceleague.adobe.com/en/docs/target/using/activities/automated-personalization/automated-personalization); [Automated Personalization summary reports (control vs targeted)](https://experienceleague.adobe.com/en/docs/target/using/reports/personalization-reports/reports-ap)
-- Dynamic Yield — [A/B testing without segmentation](https://www.dynamicyield.com/lesson/ab-testing-without-segmentation/)
+The comparison is most trustworthy when the learning state is "Good"; overlap then colours how the head-to-head result should be read rather than whether it is valid.

@@ -119,14 +119,22 @@ System:
 
 Visual-only feedback:
 
-- non-matching rules → dimmed
-- evaluated rules → default state
-- matching rule → highlighted with "WINNER"
+- not-reached rules (after the winner) → dimmed
+- evaluated rules (skipped / fall-through) → default state
+- matching rule → highlighted with "Winner"
+- no rule matched → the "everyone else → Off" fallback row is highlighted, so the
+  left panel is never silent about a fall-through-to-default outcome
+
+Draft-mode reflection (so the list can never contradict the trace):
+
+- when the mode selector is on **Draft**, the list mirrors the draft config —
+  disabled rules render struck-through with a "Disabled" status, and changed
+  exposures update inline with a small draft-change chip (e.g. `34% → 100%`)
 
 Constraints:
 
-- no textual explanations in rule cards
-- no duplication of reasoning from the right panel
+- no evaluation *reasoning* text in rule cards (that lives in the right panel)
+- draft-change chips are permitted — they describe a config delta, not evaluation logic
 
 ---
 
@@ -144,12 +152,16 @@ Always visible without scrolling:
 
 ##### 2. Draft vs Live Comparison
 
-Always displayed in Draft mode:
+Always displayed in Draft mode, never silent. Shows the **resolved variation for
+this exact visitor** under both configs, side by side:
 
-- if different → warning message
-- if identical → confirmation message
-
-Never silent.
+- `Live serves … → Draft serves …`
+- comparison is on the served variation (incl. `Off` fallback), not just the
+  matched-rule index — so a variation swap within the same rule still surfaces
+- verdict banner: different → warning ("Draft would change what this visitor sees");
+  identical → confirmation ("Draft matches Live for this visitor")
+- the Result card frame stays neutral in Draft (marked with a "Draft configuration"
+  ribbon); the verdict colour lives in this comparison block, not on the card
 
 ---
 
@@ -172,6 +184,9 @@ Each rule includes:
 
 - **Matched**
   - full qualification
+  - at 100% exposure the Bucket Ruler is suppressed (it would always match) and
+    replaced with an "always served" note — the ruler is only shown when the
+    score genuinely gates the outcome
 
 ---
 
